@@ -1,0 +1,66 @@
+/* src/components/InspectionDetailModal/InspectionDetailModal.module.css */
+.container {
+    padding: 2rem;
+    max-width: 420px;
+    text-align: center;
+}
+
+.icon {
+    margin: 0 auto 1rem;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(59, 130, 246, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+}
+
+.details {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.label {
+    color: var(--text-secondary);
+}
+
+.value {
+    font-weight: 500;
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.badge.critical {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.btnDetails {
+    width: 100%;
+    padding: 0.875rem;
+    border: none;
+    background: var(--accent-blue);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+}

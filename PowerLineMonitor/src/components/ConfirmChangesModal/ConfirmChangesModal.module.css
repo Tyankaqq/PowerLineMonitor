@@ -1,0 +1,132 @@
+/* src/components/ConfirmChangesModal/ConfirmChangesModal.module.css */
+.container {
+    padding: 2rem;
+    max-width: 500px;
+    text-align: center;
+}
+
+.container h2 {
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.icon {
+    margin: 1rem auto;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(245, 158, 11, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container h3 {
+    margin-bottom: 0.75rem;
+    font-size: 1.2rem;
+}
+
+.description {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* Changes List */
+.changesList {
+    background: var(--bg-darker);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.changeItem {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.changeItem:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.changeField {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+}
+
+.changeValues {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.oldValue {
+    padding: 0.35rem 0.75rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    text-decoration: line-through;
+}
+
+.arrow {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.newValue {
+    padding: 0.35rem 0.75rem;
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Footer */
+.footer {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btnCancel {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--border-color);
+    background: var(--bg-darker);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btnCancel:hover {
+    background: var(--bg-card);
+}
+
+.btnConfirm {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: var(--accent-blue);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btnConfirm:hover {
+    background: #2563eb;
+}
+
+.btnConfirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

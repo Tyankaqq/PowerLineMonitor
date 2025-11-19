@@ -1,0 +1,19 @@
+{
+  "menu": {
+    "lines": "Lines",
+    "inspections": "Inspections",
+    "upload": "Upload Photo",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "System Settings",
+    "interface_language": "Interface Language",
+    "theme": "Theme",
+    "timezone": "Timezone",
+    "save": "Save",
+    "cancel": "Cancel",
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Auto"
+  }
+}

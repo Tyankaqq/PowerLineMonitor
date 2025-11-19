@@ -1,0 +1,427 @@
+.pageContainer {
+    display: flex;
+    height: calc(100vh - 64px);
+}
+
+.sidebar {
+    width: 250px;
+    background: var(--bg-darker);
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+}
+
+.userProfile {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.userAvatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-md);
+    font-size: 1.5rem;
+}
+
+.userProfile h3 {
+    margin-bottom: 0.25rem;
+}
+
+.userProfile p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.sidebarNav {
+    flex: 1;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem var(--spacing-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-sm);
+    transition: all var(--transition-base);
+}
+
+.navItem:hover {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.navItem.active {
+    background: var(--accent-blue);
+    color: white;
+}
+
+.navIcon {
+    font-size: 1.25rem;
+}
+
+.btnPrimary {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: var(--spacing-xl);
+    padding: 0.75rem var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-base);
+    background: var(--accent-blue);
+    color: white;
+}
+
+.btnPrimary:hover {
+    background: var(--accent-blue-hover);
+}
+
+.btnSecondary {
+    width: 100%;
+    padding: 0.75rem var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-base);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btnSecondary:hover {
+    background: var(--bg-darker);
+}
+
+.btnEqualSize {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem !important;
+    height: 40px;
+    font-size: 1rem;
+    line-height: 1;
+    gap: 8px;
+}
+
+.sidebarFooter {
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--spacing-md);
+}
+
+.footerLink {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition-base);
+}
+
+.footerLink:hover {
+    color: var(--text-primary);
+}
+
+.mainContent {
+    flex: 1;
+    padding: var(--spacing-xl);
+    overflow-y: auto;
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-xl);
+}
+
+.pageHeader h1 {
+    margin-bottom: 0.5rem;
+}
+
+.pageHeader p {
+    color: var(--text-secondary);
+}
+
+.headerActions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.filtersBar {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+}
+
+.searchBox {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: var(--bg-card);
+    padding: 0.75rem var(--spacing-md);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.searchBox input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.filterGroup {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.filterGroup label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.filterGroup select,
+.select {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    outline: none;
+    font-size: 1rem;
+    min-width: 140px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.filterGroup select:hover,
+.filterGroup select:focus,
+.select:hover,
+.select:focus {
+    border-color: var(--accent-blue);
+}
+
+.btnIcon {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 0.75rem var(--spacing-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btnIcon:hover {
+    background: var(--bg-darker);
+}
+
+.tableContainer {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 2px 8px rgba(30,41,59,0.05);
+}
+
+/* Изменено: фиксируем бордер-коллапс для сплошных линий */
+.dataTable {
+    width: 100%;
+    border-collapse: collapse; /* changed from separate */
+    border-spacing: 0;
+    background: transparent;
+    table-layout: auto;
+}
+
+/* Заголовок таблицы */
+.dataTable thead th {
+    background: var(--bg-darker);
+    text-align: left;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Убраны бордеры у ячеек тела */
+.dataTable tbody td {
+    padding: var(--spacing-md);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.dataTable tbody tr:hover {
+    background: var(--bg-darker);
+}
+/* Добавляем бордер на всю строку для единой линии */
+.dataTable tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    background: transparent;
+    transition: background 0.1s;
+}
+
+/* Убираем нижний бордер у последней строки, по необходимости */
+.dataTable tbody tr:last-child {
+    border-bottom: none;
+}
+
+.idCell {
+    font-weight: 600;
+}
+
+.statusBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.status-new {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.status-in_work {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+}
+
+.status-completed {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.severityBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.severity-critical {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.severity-warning {
+    background: rgba(250, 204, 21, 0.1);
+    color: #facc15;
+}
+
+.severity-normal {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.clickableRow {
+    cursor: pointer;
+}
+
+/* Корректируем отображение колонки с кнопками, чтобы бордеры не прерывались */
+.actionsCell {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: 0; /* убрать паддинги для плотности */
+}
+
+/* Кнопки сделаны без бордеров, чтобы линия таблицы была непрерывной */
+.actionBtn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actionBtn:hover {
+    background: var(--bg-darker);
+    color: var(--text-primary);
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+}
+
+.paginationControls {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.pageBtn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.pageBtn:hover {
+    background: var(--bg-darker);
+}
+
+.pageBtn.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+}
+
+@media (max-width: 1024px) {
+    .pageContainer {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+}

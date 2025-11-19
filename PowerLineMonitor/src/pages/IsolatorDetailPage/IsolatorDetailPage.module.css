@@ -1,0 +1,385 @@
+.pageContainer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+}
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.pageHeader h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.idText {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.btnPrimary {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-base);
+    background: var(--accent-blue);
+    color: white;
+}
+
+.btnPrimary:hover {
+    background: var(--accent-blue-hover);
+}
+
+.btnSecondary {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-base);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    width: 100%;
+    justify-content: center;
+}
+
+.btnSecondary:hover {
+    background: var(--bg-darker);
+}
+
+.contentGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.imageSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.imageViewer {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16/9;
+}
+
+.mainImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.imageDots {
+    position: absolute;
+    bottom: var(--spacing-md);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    border: none;
+    cursor: pointer;
+    transition: background var(--transition-base);
+}
+
+.dot.active {
+    background: white;
+}
+
+.statusCard {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.statusCard.critical {
+    border-left: 4px solid var(--red);
+}
+
+.statusHeader {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.statusCard h3 {
+    margin-bottom: var(--spacing-md);
+}
+
+.statusCritical {
+    color: var(--red);
+}
+
+.statusCard p {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+}
+
+.infoSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.card h3 {
+    margin-bottom: var(--spacing-md);
+}
+
+.metric {
+    margin-bottom: var(--spacing-lg);
+}
+
+.metric:last-child {
+    margin-bottom: 0;
+}
+
+.metric label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Wrapper для библиотечного прогресс-бара */
+.progressBarWrapper {
+    margin-bottom: var(--spacing-sm);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Переопределяем стили библиотеки для плавных эффектов */
+.progressBarWrapper :global(.RSPBprogressBar) {
+    border-radius: 8px !important;
+    background: var(--bg-darker) !important;
+}
+
+.progressBarWrapper :global(.RSPBprogression) {
+    border-radius: 8px !important;
+    transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Добавляем эффект свечения при наведении на метрику */
+.metric:hover .progressBarWrapper :global(.RSPBprogression) {
+    filter: brightness(1.15);
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.6);
+}
+
+.metricValue {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.metricValue.red {
+    color: var(--red);
+}
+
+.specsGrid {
+    display: grid;
+    gap: var(--spacing-md);
+}
+
+.specItem {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.specLabel {
+    color: var(--text-secondary);
+}
+
+.specValue {
+    font-weight: 500;
+}
+
+.tabsSection {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab {
+    padding: var(--spacing-md) var(--spacing-xl);
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all var(--transition-base);
+    position: relative;
+}
+
+.tab.active {
+    color: var(--accent-blue);
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-blue);
+}
+
+.defectsTable {
+    padding: var(--spacing-lg);
+    overflow-x: auto;
+}
+
+.defectsTable table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.defectsTable thead th {
+    text-align: left;
+    padding: var(--spacing-md);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.defectsTable tbody td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.badgeRed {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--red);
+}
+
+.badgeOrange {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--orange);
+}
+
+.badgeYellow {
+    background: rgba(251, 191, 36, 0.1);
+    color: var(--yellow);
+}
+
+.criticalityRed {
+    color: var(--red);
+    font-weight: 600;
+}
+
+.criticalityOrange {
+    color: var(--orange);
+    font-weight: 600;
+}
+
+.criticalityYellow {
+    color: var(--yellow);
+    font-weight: 600;
+}
+.sliderControls {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+    padding: 0 1rem;
+    pointer-events: none; /* чтобы не блокировать содержимое, можно отключить */
+}
+
+.sliderControls button {
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    color: white;
+    font-size: 2rem;
+    border-radius: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.sliderControls button:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+.noDefectsMessage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+    text-align: center;
+    gap: 1rem;
+}
+
+.noDefectsMessage p {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.statusOk {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 8px;
+    color: #10b981;
+    font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+    .contentGrid {
+        grid-template-columns: 1fr;
+    }
+}

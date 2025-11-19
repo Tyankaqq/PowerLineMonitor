@@ -1,0 +1,149 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.modal {
+    background: #fff;
+    border-radius: 8px;
+    width: 400px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
+    overflow: hidden;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f3f4f6;
+    padding: 1rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.closeBtn {
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+.notificationsList {
+    padding: 1rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.notification {
+    display: flex;
+    background: #e0e7ff;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    gap: 0.75rem;
+}
+
+.notification.error {
+    background: #fee2e2;
+}
+.notification.success {
+    background: #dcfce7;
+}
+.notification.info {
+    background: #dbeafe;
+}
+
+.icon {
+    font-size: 1.5rem;
+    width: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.itemHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.itemTitle {
+    font-weight: 600;
+}
+
+.itemClose {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #6b7280;
+}
+
+.message {
+    font-size: 0.9rem;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+}
+
+.meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.readBtn {
+    background: none;
+    border: none;
+    color: #2563eb;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.75rem;
+}
+
+.removeBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    color: #6b7280;
+}
+
+.modalFooter {
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.clearBtn, .closeModalBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #2563eb;
+    font-weight: 600;
+}

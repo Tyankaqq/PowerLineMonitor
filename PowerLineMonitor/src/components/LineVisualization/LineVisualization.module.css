@@ -1,0 +1,167 @@
+/* src/components/LineVisualization/LineVisualization.module.css */
+.visualization {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.legend {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.legendDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.legendDot.green { background: var(--green); }
+.legendDot.yellow { background: var(--yellow); }
+.legendDot.red { background: var(--red); }
+
+.schema {
+    background: var(--bg-darker);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-xl);
+    overflow-x: auto;
+}
+
+.schemaLine {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    min-width: max-content;
+    padding: var(--spacing-md) 0;
+}
+
+.towerGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+    cursor: pointer;
+    user-select: none;
+}
+
+.towerGroup:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.towerGroup.selected {
+    background: rgba(59, 130, 246, 0.15);
+    border: 2px solid var(--accent-blue);
+}
+
+.towerGroup:active {
+    transform: scale(0.98);
+}
+
+.towerIcon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.towerStructure {
+    width: 40px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent 0%, transparent 40%, var(--text-secondary) 40%, var(--text-secondary) 60%, transparent 60%);
+    position: relative;
+}
+
+.towerStructure::before,
+.towerStructure::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background: var(--text-secondary);
+    top: 0;
+}
+
+.towerStructure::before {
+    left: 10px;
+    transform: skewX(-15deg);
+}
+
+.towerStructure::after {
+    right: 10px;
+    transform: skewX(15deg);
+}
+
+.towerLabel {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.componentsMini {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.componentDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform var(--transition-base);
+}
+
+.componentDot:hover {
+    transform: scale(1.3);
+}
+
+.componentDot.green { background: var(--green); }
+.componentDot.yellow { background: var(--yellow); }
+.componentDot.red { background: var(--red); }
+
+.wireSegment {
+    height: 2px;
+    width: 80px;
+    background: var(--text-secondary);
+    position: relative;
+}
+
+.wireSegment::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--text-secondary);
+    opacity: 0.5;
+}
+
+.wireSegment::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--text-secondary);
+    opacity: 0.5;
+}

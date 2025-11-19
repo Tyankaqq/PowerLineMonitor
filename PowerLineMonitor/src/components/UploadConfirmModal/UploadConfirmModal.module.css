@@ -1,0 +1,122 @@
+/* src/components/UploadConfirmModal/UploadConfirmModal.module.css */
+.container {
+    padding: 20px;
+    text-align: center;
+}
+
+.iconContainer {
+    width: 80px;
+    height: 80px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-lg);
+}
+
+.icon {
+    color: var(--accent-blue);
+}
+
+.title {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.description {
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xl);
+    font-size: 1rem;
+}
+
+.fileInfo {
+    background: var(--bg-darker);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+    margin-bottom: var(--spacing-lg);
+    text-align: left;
+}
+
+.fileIcon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.fileDetails {
+    flex: 1;
+}
+
+.fileCount {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+.fileSubtext {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--spacing-xl);
+    text-align: left;
+}
+
+.features li {
+    padding: var(--spacing-sm) 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.features li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--accent-blue);
+    font-weight: bold;
+}
+
+.actions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.btnCancel,
+.btnConfirm {
+    flex: 1;
+    padding: 0.875rem var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    border: none;
+}
+
+.btnCancel {
+    background: var(--bg-darker);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btnCancel:hover {
+    background: var(--bg-dark);
+}
+
+.btnConfirm {
+    background: var(--accent-blue);
+    color: white;
+}
+
+.btnConfirm:hover {
+    background: var(--accent-blue-hover);
+}

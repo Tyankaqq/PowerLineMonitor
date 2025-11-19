@@ -1,0 +1,58 @@
+.selectContainer {
+    position: relative;
+    width: 250px; /* фиксированная ширина, можно подкорректировать под ваш дизайн */
+}
+
+.selectButton {
+    width: 100%;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.7rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden; /* добавьте, чтобы не расширялся */
+    white-space: nowrap; /* не переносить текст */
+    text-overflow: ellipsis; /* многоточие если текст слишком длинный */
+    transition: border 0.2s;
+    outline: none;
+}
+
+.selectButton:focus {
+    border-color: var(--accent-blue);
+}
+
+.selectDropdown {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 110%;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border-color);
+    margin-top: 0.2rem;
+    z-index: 100;
+    box-shadow: 0 8px 20px -5px rgba(30,41,59,0.08);
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.selectOption {
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: background 0.18s;
+}
+
+.selectOption:hover {
+    background: var(--bg-darker);
+}
+
+.selected {
+    background: var(--accent-blue);
+    color: #fff;
+}

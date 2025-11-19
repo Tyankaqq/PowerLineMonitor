@@ -1,0 +1,143 @@
+/* src/components/EditInspectionModal/EditInspectionModal.module.css */
+.container {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px;
+    box-sizing: border-box;
+    color: var(--text-primary);
+}
+
+h2 {
+    margin-bottom: 1.25rem;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.formGroup {
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.formGroup label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.input,
+
+.textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-darker);
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.input:focus,
+
+.textarea:focus {
+    border-color: var(--accent-blue);
+}
+
+.select {
+    appearance: none; /* Убирает стандартный стрелочный элемент */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 2.5rem 0.75rem 1rem; /* Отступ справа оставляет место для стрелки */
+    font-size: 1rem;
+    outline: none;
+    cursor: pointer;
+    width: 100%;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+    transition: border-color 0.2s;
+}
+
+.select:hover,
+.select:focus {
+    border-color: var(--accent-blue);
+}
+.textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.severityButtons {
+    display: flex;
+    gap: 1rem;
+}
+
+.severityBtn {
+    flex: 1;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: var(--bg-darker);
+    color: var(--text-primary);
+    font-weight: 600;
+    transition: background-color 0.2s, border-color 0.2s;
+    text-align: center;
+}
+
+.severityBtn.active,
+.severityBtn:hover {
+    background: var(--accent-orange);
+    border-color: var(--accent-orange);
+    color: #fff;
+}
+
+.footer {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btnCancel,
+.btnSave,
+.btnConfirm {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.btnCancel {
+    background: var(--bg-darker);
+    color: var(--text-primary);
+}
+
+.btnCancel:hover {
+    background: var(--bg-card);
+}
+
+.btnSave,
+.btnConfirm {
+    background: var(--accent-blue);
+    color: #fff;
+}
+
+.btnSave:hover,
+.btnConfirm:hover {
+    background: var(--accent-blue-hover);
+}

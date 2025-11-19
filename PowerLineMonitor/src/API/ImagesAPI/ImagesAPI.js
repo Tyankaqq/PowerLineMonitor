@@ -1,0 +1,84 @@
+// src/API/ImagesAPI/ImagesAPI.js
+const BASE_URL = 'https://28c55251873d.ngrok-free.app';
+
+/**
+ * Загрузить изображения для анализа
+ * @param {File[]} images - Массив файлов изображений
+ * @returns {Promise<Array>} - Массив результатов анализа
+ */
+export async function uploadImagesForAnalysis(images) {
+    const formData = new FormData();
+
+    // Добавляем каждое изображение в FormData
+    images.forEach(image => {
+        formData.append('files', image); // ✅ Правильно - files
+    });
+
+    const response = await fetch(`${BASE_URL}/predict/`, {
+        method: 'POST',
+        body: formData,
+        // Не указываем Content-Type, браузер сам установит multipart/form-data
+    });
+
+    if (!response.ok) {
+        throw new Error(`Ошибка загрузки изображений: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+}
+/**
+ * Получить карточку изображения и её анализ по image_id
+ * @param {number|string} imageId - ID изображения
+ * @returns {Promise<Object>} - Объект карточки с анализом (см. пример в swagger)
+ */
+export async function fetchImageCard(imageId) {
+    const response = await fetch(`${BASE_URL}/images/${imageId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            // Добавьте авторизацию, если требуется
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Ошибка получения карточки изображения: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+}
+/**
+ * Загрузить одно изображение для анализа
+ * @param {File} image - Файл изображения
+ * @returns {Promise<Object>} - Результат анализа
+ */
+export async function uploadSingleImage(image) {
+    const formData = new FormData();
+    formData.append('files', image);
+
+    const response = await fetch(`${BASE_URL}/predict/`, {
+        method: 'POST',
+        body: formData
+    });
+
+    if (!response.ok) {
+        throw new Error(`Ошибка загрузки изображения: ${response.status} ${response.statusText}`);
+    }
+
+    const results = await response.json();
+    return results[0]; // Возвращаем первый результат
+}
+export async function fetchImagesList() {
+    const response = await fetch(`${BASE_URL}/images/`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': 'Bearer token', // Если нужно
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Ошибка получения списка изображений: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+}

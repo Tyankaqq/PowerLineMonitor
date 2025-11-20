@@ -1,3 +1,65 @@
+/* ============================================
+   АНИМАЦИИ ПОЯВЛЕНИЯ
+   ============================================ */
+
+/* Основные keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+
 .pageContainer {
     display: flex;
     height: calc(100vh - 64px);
@@ -10,11 +72,13 @@
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--border-color);
+    animation: slideInRight 0.5s ease-out;
 }
 
 .userProfile {
     text-align: center;
     margin-bottom: var(--spacing-xl);
+    animation: fadeIn 0.6s ease-out;
 }
 
 .userAvatar {
@@ -27,6 +91,7 @@
     justify-content: center;
     margin: 0 auto var(--spacing-md);
     font-size: 1.5rem;
+    animation: scaleIn 0.5s ease-out 0.2s backwards;
 }
 
 .userProfile h3 {
@@ -52,6 +117,8 @@
     border-radius: var(--radius-sm);
     margin-bottom: var(--spacing-sm);
     transition: all var(--transition-base);
+    animation: slideInRight 0.4s ease-out backwards;
+    animation-delay: calc(0.1s * var(--nav-index, 0));
 }
 
 .navItem:hover {
@@ -87,6 +154,8 @@
 
 .btnPrimary:hover {
     background: var(--accent-blue-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .btnSecondary {
@@ -106,6 +175,7 @@
 
 .btnSecondary:hover {
     background: var(--bg-darker);
+    transform: translateY(-2px);
 }
 
 .btnEqualSize {
@@ -122,6 +192,7 @@
 .sidebarFooter {
     border-top: 1px solid var(--border-color);
     padding-top: var(--spacing-md);
+    animation: fadeIn 0.6s ease-out 0.5s backwards;
 }
 
 .footerLink {
@@ -144,11 +215,16 @@
     overflow-y: auto;
 }
 
+/* ============================================
+   HEADER
+   ============================================ */
+
 .pageHeader {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: var(--spacing-xl);
+    animation: slideDown 0.5s ease-out;
 }
 
 .pageHeader h1 {
@@ -164,11 +240,16 @@
     gap: var(--spacing-md);
 }
 
+/* ============================================
+   FILTERS
+   ============================================ */
+
 .filtersBar {
     display: flex;
     gap: var(--spacing-md);
     margin-bottom: var(--spacing-xl);
     flex-wrap: wrap;
+    animation: fadeInUp 0.5s ease-out 0.1s backwards;
 }
 
 .searchBox {
@@ -180,6 +261,12 @@
     padding: 0.75rem var(--spacing-md);
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
+    transition: all var(--transition-base);
+}
+
+.searchBox:focus-within {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .searchBox input {
@@ -219,7 +306,7 @@
     background-position: right 0.75rem center;
     background-size: 1em;
     cursor: pointer;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
 }
 
 .filterGroup select:hover,
@@ -244,7 +331,12 @@
 
 .btnIcon:hover {
     background: var(--bg-darker);
+    transform: translateY(-2px);
 }
+
+/* ============================================
+   TABLE
+   ============================================ */
 
 .tableContainer {
     background: var(--bg-card);
@@ -253,18 +345,17 @@
     overflow: hidden;
     margin-bottom: var(--spacing-md);
     box-shadow: 0 2px 8px rgba(30,41,59,0.05);
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
 }
 
-/* Изменено: фиксируем бордер-коллапс для сплошных линий */
 .dataTable {
     width: 100%;
-    border-collapse: collapse; /* changed from separate */
+    border-collapse: collapse;
     border-spacing: 0;
     background: transparent;
     table-layout: auto;
 }
 
-/* Заголовок таблицы */
 .dataTable thead th {
     background: var(--bg-darker);
     text-align: left;
@@ -276,7 +367,6 @@
     border-bottom: 1px solid var(--border-color);
 }
 
-/* Убраны бордеры у ячеек тела */
 .dataTable tbody td {
     padding: var(--spacing-md);
     border: none;
@@ -284,17 +374,20 @@
     cursor: pointer;
     transition: background 0.2s ease;
 }
-.dataTable tbody tr:hover {
-    background: var(--bg-darker);
-}
-/* Добавляем бордер на всю строку для единой линии */
+
 .dataTable tbody tr {
     border-bottom: 1px solid var(--border-color);
     background: transparent;
-    transition: background 0.1s;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.4s ease-out backwards;
+    animation-delay: calc(0.05s * var(--row-index, 0));
 }
 
-/* Убираем нижний бордер у последней строки, по необходимости */
+.dataTable tbody tr:hover {
+    background: var(--bg-darker);
+    transform: translateX(4px);
+}
+
 .dataTable tbody tr:last-child {
     border-bottom: none;
 }
@@ -303,6 +396,10 @@
     font-weight: 600;
 }
 
+/* ============================================
+   BADGES
+   ============================================ */
+
 .statusBadge {
     padding: 0.25rem 0.75rem;
     border-radius: 1rem;
@@ -310,6 +407,12 @@
     font-weight: 600;
     text-transform: uppercase;
     display: inline-block;
+    animation: scaleIn 0.3s ease-out backwards;
+    transition: transform 0.2s ease;
+}
+
+.statusBadge:hover {
+    transform: scale(1.05);
 }
 
 .status-new {
@@ -334,6 +437,12 @@
     font-weight: 600;
     text-transform: uppercase;
     display: inline-block;
+    animation: scaleIn 0.3s ease-out backwards;
+    transition: transform 0.2s ease;
+}
+
+.severityBadge:hover {
+    transform: scale(1.05);
 }
 
 .severity-critical {
@@ -355,14 +464,12 @@
     cursor: pointer;
 }
 
-/* Корректируем отображение колонки с кнопками, чтобы бордеры не прерывались */
 .actionsCell {
     display: flex;
     gap: var(--spacing-sm);
-    padding: 0; /* убрать паддинги для плотности */
+    padding: 0;
 }
 
-/* Кнопки сделаны без бордеров, чтобы линия таблицы была непрерывной */
 .actionBtn {
     background: transparent;
     border: none;
@@ -379,7 +486,12 @@
 .actionBtn:hover {
     background: var(--bg-darker);
     color: var(--text-primary);
+    transform: scale(1.1);
 }
+
+/* ============================================
+   PAGINATION
+   ============================================ */
 
 .pagination {
     display: flex;
@@ -388,6 +500,7 @@
     padding: var(--spacing-md);
     background: var(--bg-card);
     border-radius: var(--radius-sm);
+    animation: fadeInUp 0.5s ease-out 0.3s backwards;
 }
 
 .paginationControls {
@@ -407,12 +520,89 @@
 
 .pageBtn:hover {
     background: var(--bg-darker);
+    transform: translateY(-2px);
 }
 
 .pageBtn.active {
     background: var(--accent-blue);
     border-color: var(--accent-blue);
+    color: white;
 }
+
+/* ============================================
+   ADDITIONAL ELEMENTS
+   ============================================ */
+
+.damageCount {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.criticalityBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    animation: scaleIn 0.4s ease-out backwards;
+}
+
+.criticalityBadge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.criticalityIcon {
+    font-size: 1rem;
+}
+
+.noCriticality {
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Pulse эффект для важных элементов */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 
 @media (max-width: 1024px) {
     .pageContainer {
@@ -423,5 +613,34 @@
         width: 100%;
         border-right: none;
         border-bottom: 1px solid var(--border-color);
+        animation: slideDown 0.5s ease-out;
     }
+
+    .tableContainer {
+        overflow-x: auto;
+    }
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+            90deg,
+            var(--bg-card) 0%,
+            var(--bg-darker) 50%,
+            var(--bg-card) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
 }

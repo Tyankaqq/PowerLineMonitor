@@ -1,6 +1,7 @@
 /* --- Основные стили страницы --- */
 .pageContainer {
     max-width: 1400px;
+    width: 100%; /* ДОБАВЛЕНО */
     margin: 0 auto;
     padding: var(--spacing-xl);
 }
@@ -10,12 +11,13 @@
 }
 
 .pageHeader h1 {
-    font-size: 2rem;
-    margin-bottom: 0.25rem;
+    font-size: 2.5rem; /* УВЕЛИЧЕНО с 2rem */
+    margin-bottom: 0.5rem; /* УВЕЛИЧЕНО */
 }
 
 .pageHeader p {
     color: var(--text-secondary);
+    font-size: 1.125rem; /* ДОБАВЛЕНО */
 }
 
 .loadingState, .errorState {
@@ -41,13 +43,13 @@
 .statsLayout {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-xl); /* УВЕЛИЧЕНО с var(--spacing-lg) */
     margin-bottom: var(--spacing-xl);
 }
 
 .statsRow {
     display: grid;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-xl); /* УВЕЛИЧЕНО с var(--spacing-lg) */
 }
 
 /* Верхний ряд с 3-мя карточками */
@@ -64,19 +66,20 @@
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-xl); /* УВЕЛИЧЕНО с var(--spacing-lg) */
     display: flex;
     align-items: center;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-xl); /* УВЕЛИЧЕНО */
     opacity: 0;
     animation: fadeInUp 0.6s ease-out forwards;
     animation-delay: calc(var(--animation-order) * 100ms);
+    min-height: 120px; /* ДОБАВЛЕНО */
 }
 
 .cardIcon {
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
+    width: 56px; /* УВЕЛИЧЕНО с 48px */
+    height: 56px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -87,40 +90,41 @@
 }
 
 .cardValue {
-    font-size: 1.75rem;
+    font-size: 2rem; /* УВЕЛИЧЕНО с 1.75rem */
     font-weight: 700;
     line-height: 1.2;
 }
 
 .cardTitle {
-    font-size: 1rem;
+    font-size: 1.125rem; /* УВЕЛИЧЕНО с 1rem */
     font-weight: 500;
     margin: 0;
 }
 
 /* Стили для больших карточек */
 .statCard.large {
-    padding: var(--spacing-xl);
+    padding: 2rem; /* УВЕЛИЧЕНО */
     gap: var(--spacing-xl);
+    min-height: 140px; /* ДОБАВЛЕНО */
 }
 
 .statCard.large .cardIcon {
-    width: 64px;
-    height: 64px;
+    width: 72px; /* УВЕЛИЧЕНО с 64px */
+    height: 72px;
 }
 
 .statCard.large .cardValue {
-    font-size: 2.75rem;
+    font-size: 3rem; /* УВЕЛИЧЕНО с 2.75rem */
 }
 
 .statCard.large .cardTitle {
-    font-size: 1.125rem;
+    font-size: 1.25rem; /* УВЕЛИЧЕНО с 1.125rem */
 }
 
 /* --- Сетка для графиков --- */
 .chartsGrid {
     display: grid;
-    grid-template-columns: 1fr 1.5fr;
+    grid-template-columns: 1fr;
     gap: var(--spacing-xl);
 }
 
@@ -128,21 +132,30 @@
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-xl); /* УВЕЛИЧЕНО */
     opacity: 0;
     animation: fadeInUp 0.6s ease-out forwards;
     animation-delay: calc(var(--animation-order) * 100ms);
+    min-height: 550px; /* УВЕЛИЧЕНО с 450px */
+    display: flex;
+    flex-direction: column;
 }
 
 .chartHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl); /* УВЕЛИЧЕНО */
 }
 
 .chartCard h3 {
-    margin: 0;
+    margin: 0 0 var(--spacing-lg) 0; /* УВЕЛИЧЕНО */
+    flex-shrink: 0;
+    font-size: 1.5rem; /* ДОБАВЛЕНО */
+}
+
+.chartCard > div:last-child {
+    flex: 1;
 }
 
 /* Круговая диаграмма */
@@ -162,12 +175,12 @@
     align-items: center;
     justify-content: center;
     gap: var(--spacing-xl);
-    min-height: 250px;
+    min-height: 300px; /* УВЕЛИЧЕНО с 250px */
 }
 
 .pieChart {
-    width: 200px;
-    height: 200px;
+    width: 250px; /* УВЕЛИЧЕНО с 200px */
+    height: 250px;
     border-radius: 50%;
     flex-shrink: 0;
     animation: spinIn 1s cubic-bezier(0.5, 0, 0.2, 1) forwards;
@@ -186,21 +199,21 @@
 }
 
 .legendColor {
-    width: 14px;
-    height: 14px;
+    width: 16px; /* УВЕЛИЧЕНО с 14px */
+    height: 16px;
     border-radius: 4px;
     flex-shrink: 0;
 }
 
 .legendText {
-    font-size: 1rem;
+    font-size: 1.125rem; /* УВЕЛИЧЕНО с 1rem */
 }
 
 /* Линейный график */
 .dateInputGroup {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem; /* УВЕЛИЧЕНО */
     color: var(--text-secondary);
 }
 
@@ -209,8 +222,8 @@
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     border-radius: var(--radius-md);
-    padding: 0.4rem 0.6rem;
-    font-size: 0.875rem;
+    padding: 0.6rem 0.8rem; /* УВЕЛИЧЕНО */
+    font-size: 1rem; /* УВЕЛИЧЕНО с 0.875rem */
 }
 
 .dateInput::-webkit-calendar-picker-indicator {
@@ -226,7 +239,7 @@
 
 .lineChartContainer {
     width: 100%;
-    height: 250px;
+    height: 350px; /* УВЕЛИЧЕНО с 250px */
 }
 
 .lineChartPath {
@@ -248,8 +261,8 @@
 }
 
 g:hover .lineChartPoint {
-    r: 7;
-    filter: drop-shadow(0 0 5px var(--accent-blue));
+    r: 8; /* УВЕЛИЧЕНО с 7 */
+    filter: drop-shadow(0 0 6px var(--accent-blue)); /* УВЕЛИЧЕНО */
 }
 
 g:hover .tooltip {
@@ -263,7 +276,7 @@ g:hover .tooltip {
 
 .yAxisLabel {
     fill: var(--text-secondary);
-    font-size: 10px;
+    font-size: 12px; /* УВЕЛИЧЕНО с 10px */
 }
 
 .gridLineGroup {
@@ -275,6 +288,10 @@ g:hover .tooltip {
 @media (max-width: 1200px) {
     .chartsGrid {
         grid-template-columns: 1fr;
+    }
+
+    .statsRow:first-child, .statsRow:last-child {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -291,5 +308,17 @@ g:hover .tooltip {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
+    }
+
+    .chartCard h3 {
+        font-size: 1.25rem;
+    }
+
+    .lineChartContainer {
+        height: 250px;
+    }
+
+    .statCard {
+        padding: var(--spacing-lg);
     }
 }

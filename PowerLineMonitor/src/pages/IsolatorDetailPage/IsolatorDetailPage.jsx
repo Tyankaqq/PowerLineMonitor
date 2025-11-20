@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Download, Wrench, CheckCircle } from 'lucide-react';
+import { Download, Wrench, CheckCircle } from 'lucide-react'; // Убрали X
 import AnimatedProgressBar from '../../components/AnimatedProgressBar/AnimatedProgressBar.jsx';
 import ExportReportModal from '../../components/ExportReportModal/ExportReportModal.jsx';
+import ImageModal from '../../components/ImageModal/ImageModal.jsx'; // ДОБАВИЛИ
 import Toast from '../../common/Toast';
 import styles from './IsolatorDetailPage.module.css';
 import { fetchImageCard } from '../../API/ImagesAPI/ImagesAPI';
+import { createRepairRequest } from '../../API/RepairRequestsAPI/RepairRequestsAPI';
 
-// Словарь перевода типов дефектов
 const defectTypeLabels = {
     'chip': 'Скол',
     'corrosion': 'Коррозия',
@@ -16,6 +17,8 @@ const defectTypeLabels = {
     'undefined': 'Неопределено',
 };
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://28c55251873d.ngrok-free.app';
+
 const IsolatorDetailPage = () => {
     const { id } = useParams();
     const targetImageId = id || 24;
@@ -23,6 +26,7 @@ const IsolatorDetailPage = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [activeTab, setActiveTab] = useState('results');
     const [exportModalOpen, setExportModalOpen] = useState(false);
+    const [fullscreenImage, setFullscreenImage] = useState(null);
 
     const [toastVisible, setToastVisible] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
@@ -30,6 +34,7 @@ const IsolatorDetailPage = () => {
 
     const [images, setImages] = useState([]);
     const [analysisResult, setAnalysisResult] = useState(null);
+    const [creatingRepair, setCreatingRepair] = useState(null);
 
     const formatClassifConfidence = (value) => {
         if (value === undefined || value === null) return '0.00';
@@ -39,33 +44,26 @@ const IsolatorDetailPage = () => {
     };
 
     useEffect(() => {
-        // Сбрасываем старые данные при новом запросе
         setAnalysisResult(null);
         setImages([]);
 
         fetchImageCard(targetImageId)
             .then(data => {
-                // --- ШАГ ДИАГНОСТИКИ №1: Проверяем, что приходит с бэкенда ---
-                console.log('%c1. Данные от API:', 'color: yellow; font-weight: bold;', data);
-
                 setAnalysisResult(data);
 
                 const imgs = [];
                 const baseUrl = import.meta.env.VITE_API_URL;
-
-                // --- ШАГ ДИАГНОСТИКИ №2: Проверяем, что читается из .env ---
-                console.log('%c2. Base URL из .env:', 'color: cyan; font-weight: bold;', baseUrl);
 
                 if (data && data.file_path) {
                     const mainImage = data.file_path.startsWith('http')
                         ? data.file_path
                         : `${baseUrl}${data.file_path}`;
 
-                    imgs.push(mainImage); // Сразу добавляем главное изображение
+                    imgs.push(mainImage);
 
                     if (data.detections && data.detections.length > 0) {
                         const defectImages = data.detections
-                            .filter(det => det.roi_path) // Берем только дефекты с картинкой
+                            .filter(det => det.roi_path)
                             .map(det => det.roi_path.startsWith('http')
                                 ? det.roi_path
                                 : `${baseUrl}${det.roi_path}`
@@ -74,14 +72,8 @@ const IsolatorDetailPage = () => {
                         imgs.push(...defectImages);
                     }
 
-                    // --- ШАГ ДИАГНОСТИКИ №3: Проверяем финальные URL ---
-                    console.log('%c3. Финальный массив URL для слайдера:', 'color: lime; font-weight: bold;', imgs);
-
                     setImages(imgs);
                     setCurrentImageIndex(0);
-
-                } else {
-                    console.warn('В полученных данных отсутствует `file_path`');
                 }
             })
             .catch((error) => {
@@ -94,14 +86,25 @@ const IsolatorDetailPage = () => {
             });
     }, [targetImageId]);
 
-
     const openExportModal = () => setExportModalOpen(true);
     const closeExportModal = () => setExportModalOpen(false);
 
-    const handleCreateRepairTask = (defectId) => {
-        setToastMessage(`Задача на ремонт успешно создана для дефекта ${defectId}!`);
-        setToastType('success');
-        setToastVisible(true);
+    const handleCreateRepairTask = async (defectId) => {
+        setCreatingRepair(defectId);
+
+        try {
+            const result = await createRepairRequest(defectId);
+            setToastMessage(`Задача на ремонт успешно создана! ID заявки: ${result.repair_request_id}`);
+            setToastType('success');
+            setToastVisible(true);
+        } catch (error) {
+            console.error('Ошибка создания заявки:', error);
+            setToastMessage(`Ошибка создания заявки: ${error.message}`);
+            setToastType('error');
+            setToastVisible(true);
+        } finally {
+            setCreatingRepair(null);
+        }
     };
 
     const nextImage = () => {
@@ -110,6 +113,16 @@ const IsolatorDetailPage = () => {
 
     const prevImage = () => {
         setCurrentImageIndex(prev => (prev - 1 + images.length) % images.length);
+    };
+
+    const openFullscreen = () => {
+        console.log('🖼️ Открытие модалки с URL:', images[currentImageIndex]);
+        setFullscreenImage(images[currentImageIndex]);
+    };
+
+    const closeFullscreen = () => {
+        console.log('🚪 Закрытие модалки');
+        setFullscreenImage(null);
     };
 
     if (!analysisResult) {
@@ -124,9 +137,7 @@ const IsolatorDetailPage = () => {
                 <div className={styles.pageHeader}>
                     <div>
                         <h1>{analysisResult.isolatorName || 'Изолятор'}</h1>
-                        <p className={styles.idText}>
-                            ID: {analysisResult.isolatorId || analysisResult.image_id}
-                        </p>
+
                     </div>
                     <button className={styles.btnPrimary} onClick={openExportModal}>
                         <Download size={18} />
@@ -143,6 +154,8 @@ const IsolatorDetailPage = () => {
                                         src={images[currentImageIndex]}
                                         alt={`Фото ${currentImageIndex + 1}`}
                                         className={styles.mainImage}
+                                        onClick={openFullscreen}
+                                        style={{ cursor: 'pointer' }}
                                     />
                                     {images.length > 1 && (
                                         <div className={styles.sliderControls}>
@@ -235,9 +248,10 @@ const IsolatorDetailPage = () => {
                                                 <button
                                                     className={styles.btnSecondary}
                                                     onClick={() => handleCreateRepairTask(defect.id)}
+                                                    disabled={creatingRepair === defect.id}
                                                 >
                                                     <Wrench size={18} />
-                                                    Создать задачу на ремонт
+                                                    {creatingRepair === defect.id ? 'Создание...' : 'Создать задачу на ремонт'}
                                                 </button>
                                             </td>
                                         </tr>
@@ -255,6 +269,11 @@ const IsolatorDetailPage = () => {
                     )}
                 </div>
             </div>
+
+            {/* ИСПОЛЬЗУЕМ КОМПОНЕНТ ImageModal */}
+            {fullscreenImage && (
+                <ImageModal imageUrl={fullscreenImage} onClose={closeFullscreen} />
+            )}
 
             <ExportReportModal
                 isOpen={exportModalOpen}

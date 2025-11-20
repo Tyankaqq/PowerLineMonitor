@@ -1,5 +1,5 @@
 // src/API/ImagesAPI/ImagesAPI.js
-const BASE_URL = 'https://c00c537dd453.ngrok-free.app';
+const BASE_URL = 'https://c063f61fbd75.ngrok-free.app';
 
 /**
  * Загрузить изображения для анализа
@@ -78,6 +78,27 @@ export async function fetchImagesList() {
 
     if (!response.ok) {
         throw new Error(`Ошибка получения списка изображений: ${response.status} ${response.statusText}`);
+    }
+
+    return response.json();
+}
+/**
+ * Обновить степень критичности изображения
+ * @param {number} imageId - ID изображения
+ * @param {number} criticality - Степень критичности от 0 до 5
+ * @returns {Promise<Object>}
+ */
+export async function updateImageCriticality(imageId, criticality) {
+    const response = await fetch(`${BASE_URL}/images/${imageId}/criticality`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ criticality })
+    });
+
+    if (!response.ok) {
+        throw new Error(`Ошибка обновления критичности: ${response.status} ${response.statusText}`);
     }
 
     return response.json();

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Download, Eye, Edit, Trash2, RefreshCw } from 'lucide-react';
+import { Search, Filter, Download, Eye, Edit, Trash2, RefreshCw, AlertTriangle, AlertCircle, XCircle, CheckCircle, AlertOctagon } from 'lucide-react';
 import AdvancedFiltersModal from '../../components/AdvancedFiltersModal/AdvancedFiltersModal';
 import NewInspectionModal from '../../components/NewInspectionModal/NewInspectionModal';
 import ExportReportModal from '../../components/ExportReportModal/ExportReportModal';
@@ -10,13 +10,11 @@ import ConfirmChangesModal from '../../components/ConfirmChangesModal/ConfirmCha
 import Checkbox from '../../components/Checkbox/Checkbox';
 import Select from '../../components/Select/Select';
 import styles from './InspectionHistoryPage.module.css';
-
-// Импортируем функцию из вашего API файла
 import { fetchImagesList } from '../../API/ImagesAPI/ImagesAPI';
+
 
 const ITEMS_PER_PAGE = 10;
 
-// Словарь перевода типов объектов
 const objectTypeLabels = {
     'vibration_damper': 'Виброгаситель',
     'festoon_insulators': 'Гирлянда изоляторов',
@@ -24,7 +22,23 @@ const objectTypeLabels = {
     'nest': 'Гнездо',
     'safety_sign': 'Знак безопасности',
     'polymer_insulators': 'Полимерный изолятор',
-    // Добавьте другие типы, если появятся (например, id 5 и 6, если есть)
+};
+
+// ДОБАВЛЕНО: Функция для определения цвета критичности
+const getCriticalityConfig = (criticality) => {
+    if (criticality === null || criticality === undefined) {
+        return null;
+    }
+
+    const configs = {
+        1: { label: 'Низкая', color: '#10b981', Icon: CheckCircle },        // Зеленая галочка
+        2: { label: 'Средняя', color: '#f59e0b', Icon: AlertCircle },       // Желтый круг
+        3: { label: 'Высокая', color: '#ef4444', Icon: AlertTriangle },     // Красный треугольник
+        4: { label: 'Критическая', color: '#dc2626', Icon: AlertOctagon },  // Красный восьмиугольник
+        5: { label: 'Экстренная', color: '#991b1b', Icon: XCircle }         // Темно-красный крест
+    };
+
+    return configs[criticality];
 };
 
 const parseDate = (dateStr) => {
@@ -81,26 +95,24 @@ const InspectionHistoryPage = () => {
     const [editedData, setEditedData] = useState(null);
     const [inspections, setInspections] = useState([]);
 
-    // Функция загрузки данных через API модуль
     const loadInspections = async () => {
         setLoading(true);
         setError(null);
         try {
-            // Вызов вашей API функции
             const data = await fetchImagesList();
 
             const mappedData = data.map(item => {
-                // Перевод типа объекта
                 const translatedType = objectTypeLabels[item.main_class] || item.main_class || 'Не определен';
 
                 return {
                     id: `#${item.image_id}`,
                     realId: item.image_id,
-                    // ИЗМЕНЕНИЕ: Берем дату из 'created_at' и форматируем ее
                     date: item.created_at.split('T')[0],
-                    objectType: translatedType, // Используем переведенное название
+                    objectType: translatedType,
                     confidence: item.main_confidence,
-                    imageUrl: item.file_path
+                    imageUrl: item.file_path,
+                    criticality: item.criticality, // ДОБАВЛЕНО
+                    countDamage: item.count_damage || 0 // ДОБАВЛЕНО
                 };
             });
 
@@ -155,16 +167,34 @@ const InspectionHistoryPage = () => {
         setShowEdit(true);
     };
 
-    const handleSaveEdit = data => {
-        setEditedData(data);
+    const handleSaveEdit = (updatedData) => {
+        // Сохраняем данные для подтверждения
+        setEditedData(updatedData);
+
+        // Сразу обновляем локальное состояние
+        setInspections(prev => prev.map(i =>
+            i.id === selectedInspection.id
+                ? { ...i, criticality: updatedData.criticality }
+                : i
+        ));
+
         setShowEdit(false);
-        setShowConfirmChanges(true);
+        // Не показываем модалку подтверждения, просто закрываем
+        setSelectedInspection(null);
+        setEditedData(null);
     };
 
     const handleConfirmEdit = () => {
-        setInspections(prev => prev.map(i => i.id === selectedInspection.id ? { ...i, ...editedData } : i));
+        // Обновляем только конкретную запись с данными из editedData
+        setInspections(prev => prev.map(i =>
+            i.id === selectedInspection.id
+                ? { ...i, criticality: editedData.criticality }
+                : i
+        ));
+
         setShowConfirmChanges(false);
         setEditedData(null);
+        setSelectedInspection(null);
     };
 
     const handleDelete = (e, inspection) => {
@@ -189,7 +219,6 @@ const InspectionHistoryPage = () => {
     return (
         <div className={styles.pageContainer}>
             <main className={styles.mainContent}>
-
                 <div className={styles.pageHeader}>
                     <div>
                         <h1>История Осмотров</h1>
@@ -260,38 +289,65 @@ const InspectionHistoryPage = () => {
                                 <th>ДАТА</th>
                                 <th>ТИП ОБЪЕКТА</th>
                                 <th>УВЕРЕННОСТЬ</th>
+                                <th>ПОВРЕЖДЕНИЙ</th> {/* ДОБАВЛЕНО */}
+                                <th>КРИТИЧНОСТЬ</th> {/* ДОБАВЛЕНО */}
                                 <th>ДЕЙСТВИЯ</th>
                             </tr>
                             </thead>
                             <tbody>
                             {paginatedInspections.length > 0 ? (
-                                paginatedInspections.map(inspection => (
-                                    <tr key={inspection.id} className={styles.rowWithBorder} onClick={() => handleRowClick(inspection)}>
-                                        <td onClick={e => e.stopPropagation()}>
-                                            <Checkbox checked={selectedItems.has(inspection.id)} onChange={() => handleSelectItem(inspection.id)} />
-                                        </td>
-                                        <td className={styles.idCell}>{inspection.id}</td>
-                                        <td>{inspection.date}</td>
-                                        <td>{inspection.objectType}</td>
-                                        <td>
-                                            {(inspection.confidence * 100).toFixed(2)}%
-                                        </td>
-                                        <td className={styles.actionsCell} onClick={e => e.stopPropagation()}>
-                                            <button className={styles.actionBtn} title="Просмотр" onClick={() => handleRowClick(inspection)}>
-                                                <Eye size={16} />
-                                            </button>
-                                            <button className={styles.actionBtn} title="Редактировать" onClick={(e) => handleEdit(e, inspection)}>
-                                                <Edit size={16} />
-                                            </button>
-                                            <button className={styles.actionBtn} title="Удалить" onClick={(e) => handleDelete(e, inspection)}>
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
+                                paginatedInspections.map(inspection => {
+                                    const criticalityConfig = getCriticalityConfig(inspection.criticality);
+
+                                    return (
+                                        <tr key={inspection.id} className={styles.rowWithBorder} onClick={() => handleRowClick(inspection)}>
+                                            <td onClick={e => e.stopPropagation()}>
+                                                <Checkbox checked={selectedItems.has(inspection.id)} onChange={() => handleSelectItem(inspection.id)} />
+                                            </td>
+                                            <td className={styles.idCell}>{inspection.id}</td>
+                                            <td>{inspection.date}</td>
+                                            <td>{inspection.objectType}</td>
+                                            <td>{(inspection.confidence * 100).toFixed(2)}%</td>
+
+                                            {/* ДОБАВЛЕНО: Количество повреждений */}
+                                            <td>
+                                                <span className={styles.damageCount}>
+                                                    {inspection.countDamage > 0 && (
+                                                        <AlertTriangle size={14} style={{ color: '#ef4444', marginRight: '4px' }} />
+                                                    )}
+                                                    {inspection.countDamage}
+                                                </span>
+                                            </td>
+
+                                            {/* ДОБАВЛЕНО: Критичность с цветовой индикацией */}
+                                            <td>
+                                                {criticalityConfig ? (
+                                                    <div className={styles.criticalityIcon} title={criticalityConfig.label}>
+                                                        <criticalityConfig.Icon
+                                                            size={20}
+                                                            color={criticalityConfig.color}
+                                                            strokeWidth={2.5}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <span className={styles.noCriticality}>—</span>
+                                                )}
+                                            </td>
+
+                                            <td className={styles.actionsCell} onClick={e => e.stopPropagation()}>
+                                                <button className={styles.actionBtn} title="Просмотр" onClick={() => handleRowClick(inspection)}>
+                                                    <Eye size={16} />
+                                                </button>
+                                                <button className={styles.actionBtn} title="Редактировать" onClick={(e) => handleEdit(e, inspection)}>
+                                                    <Edit size={16} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             ) : (
                                 <tr>
-                                    <td colSpan="6" className={styles.emptyState}>Нет данных для отображения</td>
+                                    <td colSpan="8" className={styles.emptyState}>Нет данных для отображения</td>
                                 </tr>
                             )}
                             </tbody>
@@ -337,7 +393,6 @@ const InspectionHistoryPage = () => {
                 <EditInspectionModal isOpen={showEdit} onClose={() => setShowEdit(false)} inspection={selectedInspection} onSave={handleSaveEdit} />
                 <DeleteConfirmModal isOpen={showDelete} onClose={() => setShowDelete(false)} onConfirm={handleConfirmDelete} itemName={selectedInspection?.id} />
                 <ConfirmChangesModal isOpen={showConfirmChanges} onClose={() => setShowConfirmChanges(false)} onConfirm={handleConfirmEdit} original={selectedInspection} edited={editedData} />
-
             </main>
         </div>
     );

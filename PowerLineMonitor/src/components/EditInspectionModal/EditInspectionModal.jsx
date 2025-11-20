@@ -1,53 +1,62 @@
-// src/components/EditInspectionModal/EditInspectionModal.jsx
 import React, { useState, useEffect } from 'react';
 import Modal from '../Modal/Modal';
 import styles from './EditInspectionModal.module.css';
+import { updateImageCriticality } from '../../API/ImagesAPI/ImagesAPI';
 
-const statusOptions = [
-    { value: 'in_work', label: 'В работе' },
-    { value: 'new', label: 'Новый' },
-    { value: 'completed', label: 'Завершено' },
-];
-
-const severityOptions = [
-    { value: 'critical', label: 'Критический' },
-    { value: 'warning', label: 'Внимание' },
-    { value: 'normal', label: 'Норма' },
-];
-
-const defectTypeOptions = [
-    { value: '', label: 'Выберите тип дефекта' },
-    { value: 'Коррозия', label: 'Коррозия' },
-    { value: 'Трещина', label: 'Трещина' },
-    { value: 'Загрязнение', label: 'Загрязнение' },
+// ИСПРАВЛЕНО: Критичность от 1 до 5
+const criticalityOptions = [
+    { value: null, label: 'Не указано' },
+    { value: 1, label: 'Низкая' },
+    { value: 2, label: 'Средняя' },
+    { value: 3, label: 'Высокая' },
+    { value: 4, label: 'Критическая' },
+    { value: 5, label: 'Экстренная' }
 ];
 
 const EditInspectionModal = ({ isOpen, onClose, inspection, onSave }) => {
     const [formData, setFormData] = useState({
-        defectType: '',
-        status: '',
-        severity: '',
-        description: '',
+        criticality: null
     });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
 
     useEffect(() => {
         if (inspection) {
             setFormData({
-                defectType: inspection.defectType || '',
-                status: inspection.status || '',
-                severity: inspection.severity || '',
-                description: inspection.description || '',
+                criticality: inspection.criticality !== undefined ? inspection.criticality : null
             });
+            setError(null);
+            setSuccess(false);
         }
     }, [inspection]);
 
     const handleChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        const numValue = value === '' || value === 'null' ? null : Number(value);
+        setFormData(prev => ({ ...prev, [field]: numValue }));
     };
 
-    const handleSubmit = e => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSave(formData);
+        setLoading(true);
+        setError(null);
+        setSuccess(false);
+
+        try {
+            await updateImageCriticality(inspection.realId, formData.criticality);
+            setSuccess(true);
+            onSave({ ...formData });
+
+            setTimeout(() => {
+                onClose();
+            }, 1000);
+
+        } catch (err) {
+            console.error('Ошибка при обновлении критичности:', err);
+            setError('Не удалось обновить критичность. Попробуйте снова.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (!inspection) return null;
@@ -55,67 +64,78 @@ const EditInspectionModal = ({ isOpen, onClose, inspection, onSave }) => {
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <form className={styles.container} onSubmit={handleSubmit}>
-                <h2>Редактировать Дефект {inspection.id}</h2>
+                <h2>Редактировать Осмотр {inspection.id}</h2>
 
-                <div className={styles.formGroup}>
-                    <label>Тип дефекта</label>
-                    <select
-                        className={styles.select}
-                        value={formData.defectType}
-                        onChange={e => handleChange('defectType', e.target.value)}
-                        required
-                    >
-                        {defectTypeOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                    </select>
+                {error && (
+                    <div className={styles.errorMessage}>
+                        ❌ {error}
+                    </div>
+                )}
+
+                {success && (
+                    <div className={styles.successMessage}>
+                        ✅ Критичность успешно обновлена!
+                    </div>
+                )}
+
+                <div className={styles.infoSection}>
+                    <div className={styles.infoItem}>
+                        <span className={styles.infoLabel}>Дата:</span>
+                        <span className={styles.infoValue}>{inspection.date}</span>
+                    </div>
+                    <div className={styles.infoItem}>
+                        <span className={styles.infoLabel}>Тип объекта:</span>
+                        <span className={styles.infoValue}>{inspection.objectType}</span>
+                    </div>
+                    <div className={styles.infoItem}>
+                        <span className={styles.infoLabel}>Уверенность:</span>
+                        <span className={styles.infoValue}>
+                            {(inspection.confidence * 100).toFixed(2)}%
+                        </span>
+                    </div>
+                    <div className={styles.infoItem}>
+                        <span className={styles.infoLabel}>Повреждений:</span>
+                        <span className={styles.infoValue}>{inspection.countDamage || 0}</span>
+                    </div>
                 </div>
 
                 <div className={styles.formGroup}>
-                    <label>Статус</label>
+                    <label htmlFor="criticality">Степень критичности</label>
                     <select
+                        id="criticality"
                         className={styles.select}
-                        value={formData.status}
-                        onChange={e => handleChange('status', e.target.value)}
-                        required
+                        value={formData.criticality === null ? 'null' : formData.criticality}
+                        onChange={e => handleChange('criticality', e.target.value)}
                     >
-                        {statusOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        {criticalityOptions.map(opt => (
+                            <option
+                                key={opt.value === null ? 'null' : opt.value}
+                                value={opt.value === null ? 'null' : opt.value}
+                            >
+                                {opt.label}
+                            </option>
                         ))}
                     </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label>Степень повреждения</label>
-                    <select
-                        className={styles.select}
-                        value={formData.severity}
-                        onChange={e => handleChange('severity', e.target.value)}
-                        required
-                    >
-                        {severityOptions.map(opt => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div className={styles.formGroup}>
-                    <label>Описание дефекта (опционально)</label>
-                    <textarea
-                        className={styles.textarea}
-                        value={formData.description}
-                        onChange={e => handleChange('description', e.target.value)}
-                        rows={3}
-                        placeholder="Добавьте подробности..."
-                    />
+                    <p className={styles.helpText}>
+                        Выберите уровень критичности обнаруженного дефекта (от 1 до 5)
+                    </p>
                 </div>
 
                 <div className={styles.footer}>
-                    <button type="button" className={styles.btnCancel} onClick={onClose}>
+                    <button
+                        type="button"
+                        className={styles.btnCancel}
+                        onClick={onClose}
+                        disabled={loading}
+                    >
                         Отмена
                     </button>
-                    <button type="submit" className={styles.btnSave}>
-                        Сохранить
+                    <button
+                        type="submit"
+                        className={styles.btnSave}
+                        disabled={loading}
+                    >
+                        {loading ? 'Сохранение...' : 'Сохранить'}
                     </button>
                 </div>
             </form>

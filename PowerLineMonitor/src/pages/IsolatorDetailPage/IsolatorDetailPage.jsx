@@ -39,39 +39,53 @@ const IsolatorDetailPage = () => {
     };
 
     useEffect(() => {
+        // Сбрасываем старые данные при новом запросе
+        setAnalysisResult(null);
+        setImages([]);
+
         fetchImageCard(targetImageId)
             .then(data => {
+                // --- ШАГ ДИАГНОСТИКИ №1: Проверяем, что приходит с бэкенда ---
+                console.log('%c1. Данные от API:', 'color: yellow; font-weight: bold;', data);
+
                 setAnalysisResult(data);
 
                 const imgs = [];
-                // Правильный способ для Vite!
                 const baseUrl = import.meta.env.VITE_API_URL;
 
-                if (data.file_path) {
+                // --- ШАГ ДИАГНОСТИКИ №2: Проверяем, что читается из .env ---
+                console.log('%c2. Base URL из .env:', 'color: cyan; font-weight: bold;', baseUrl);
+
+                if (data && data.file_path) {
                     const mainImage = data.file_path.startsWith('http')
                         ? data.file_path
                         : `${baseUrl}${data.file_path}`;
 
+                    imgs.push(mainImage); // Сразу добавляем главное изображение
+
                     if (data.detections && data.detections.length > 0) {
-                        imgs.push(mainImage);
+                        const defectImages = data.detections
+                            .filter(det => det.roi_path) // Берем только дефекты с картинкой
+                            .map(det => det.roi_path.startsWith('http')
+                                ? det.roi_path
+                                : `${baseUrl}${det.roi_path}`
+                            );
 
-                        const firstDefectWithRoi = data.detections.find(det => det.roi_path);
-                        if (firstDefectWithRoi) {
-                            const roiImage = firstDefectWithRoi.roi_path.startsWith('http')
-                                ? firstDefectWithRoi.roi_path
-                                : `${baseUrl}${firstDefectWithRoi.roi_path}`;
-                            imgs.push(roiImage);
-                        }
-                    } else {
-                        imgs.push(mainImage);
+                        imgs.push(...defectImages);
                     }
-                }
 
-                setImages(imgs);
-                setCurrentImageIndex(0);
+                    // --- ШАГ ДИАГНОСТИКИ №3: Проверяем финальные URL ---
+                    console.log('%c3. Финальный массив URL для слайдера:', 'color: lime; font-weight: bold;', imgs);
+
+                    setImages(imgs);
+                    setCurrentImageIndex(0);
+
+                } else {
+                    console.warn('В полученных данных отсутствует `file_path`');
+                }
             })
             .catch((error) => {
-                console.error("Ошибка при загрузке данных:", error);
+                console.error("Критическая ошибка при загрузке данных:", error);
                 setToastMessage('Ошибка загрузки данных с сервера');
                 setToastType('error');
                 setToastVisible(true);

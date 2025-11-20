@@ -1,5 +1,5 @@
 // src/API/ImagesAPI/ImagesAPI.js
-const BASE_URL = 'https://28c55251873d.ngrok-free.app';
+const BASE_URL = 'https://c00c537dd453.ngrok-free.app';
 
 /**
  * Загрузить изображения для анализа

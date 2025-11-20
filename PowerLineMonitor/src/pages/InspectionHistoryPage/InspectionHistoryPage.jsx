@@ -96,7 +96,8 @@ const InspectionHistoryPage = () => {
                 return {
                     id: `#${item.image_id}`,
                     realId: item.image_id,
-                    date: new Date().toISOString().split('T')[0],
+                    // ИЗМЕНЕНИЕ: Берем дату из 'created_at' и форматируем ее
+                    date: item.created_at.split('T')[0],
                     objectType: translatedType, // Используем переведенное название
                     confidence: item.main_confidence,
                     imageUrl: item.file_path

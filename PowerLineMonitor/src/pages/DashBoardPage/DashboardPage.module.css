@@ -1,0 +1,295 @@
+/* --- Основные стили страницы --- */
+.pageContainer {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-xl);
+}
+
+.pageHeader {
+    margin-bottom: var(--spacing-xl);
+}
+
+.pageHeader h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.pageHeader p {
+    color: var(--text-secondary);
+}
+
+.loadingState, .errorState {
+    text-align: center;
+    padding: 5rem;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+}
+
+/* --- Анимация появления --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- НОВАЯ СЕТКА КАРТОЧЕК --- */
+.statsLayout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.statsRow {
+    display: grid;
+    gap: var(--spacing-lg);
+}
+
+/* Верхний ряд с 3-мя карточками */
+.statsRow:first-child {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Нижний ряд с 2-мя карточками */
+.statsRow:last-child {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.statCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+    animation-delay: calc(var(--animation-order) * 100ms);
+}
+
+.cardIcon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--accent-blue-light);
+    color: var(--accent-blue);
+    transition: all 0.3s ease;
+}
+
+.cardValue {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.cardTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+/* Стили для больших карточек */
+.statCard.large {
+    padding: var(--spacing-xl);
+    gap: var(--spacing-xl);
+}
+
+.statCard.large .cardIcon {
+    width: 64px;
+    height: 64px;
+}
+
+.statCard.large .cardValue {
+    font-size: 2.75rem;
+}
+
+.statCard.large .cardTitle {
+    font-size: 1.125rem;
+}
+
+/* --- Сетка для графиков --- */
+.chartsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--spacing-xl);
+}
+
+.chartCard {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+    animation-delay: calc(var(--animation-order) * 100ms);
+}
+
+.chartHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.chartCard h3 {
+    margin: 0;
+}
+
+/* Круговая диаграмма */
+@keyframes spinIn {
+    from {
+        transform: rotate(-90deg) scale(0.9);
+        opacity: 0.5;
+    }
+    to {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+.pieChartContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xl);
+    min-height: 250px;
+}
+
+.pieChart {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    animation: spinIn 1s cubic-bezier(0.5, 0, 0.2, 1) forwards;
+}
+
+.pieChartLegend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.legendColor {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.legendText {
+    font-size: 1rem;
+}
+
+/* Линейный график */
+.dateInputGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.dateInput {
+    background-color: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    padding: 0.4rem 0.6rem;
+    font-size: 0.875rem;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+}
+
+@keyframes draw-line {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.lineChartContainer {
+    width: 100%;
+    height: 250px;
+}
+
+.lineChartPath {
+    stroke-dasharray: var(--line-length);
+    stroke-dashoffset: var(--line-length);
+    animation: draw-line 1.5s cubic-bezier(0.5, 0, 0.2, 1) forwards;
+}
+
+.lineChartPoint {
+    opacity: 0;
+    animation: fadeInUp 0.5s 1s ease-out forwards;
+    transition: r 0.2s, filter 0.2s;
+}
+
+.tooltip {
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+
+g:hover .lineChartPoint {
+    r: 7;
+    filter: drop-shadow(0 0 5px var(--accent-blue));
+}
+
+g:hover .tooltip {
+    opacity: 1;
+}
+
+.gridLine {
+    stroke: var(--border-color);
+    stroke-dasharray: 2, 3;
+}
+
+.yAxisLabel {
+    fill: var(--text-secondary);
+    font-size: 10px;
+}
+
+.gridLineGroup {
+    opacity: 0;
+    animation: fadeInUp 0.5s 0.2s ease-out forwards;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .chartsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .statsRow:first-child, .statsRow:last-child {
+        grid-template-columns: 1fr;
+    }
+
+    .pieChartContainer {
+        flex-direction: column;
+    }
+
+    .chartHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}

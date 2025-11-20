@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bell, HelpCircle, User, Settings } from 'lucide-react';
+import { Bell, HelpCircle, User, Settings, LayoutDashboard } from 'lucide-react'; // Добавил иконку
 import SettingsModal from '../SettingsModal/SettingsModal';
 import NotificationsModal from '../NotificationsModal/NotificationsModal';
-import { useNotifications } from '../../hooks/useNotifications.jsx'; // импортировать хук
+import { useNotifications } from '../../hooks/useNotifications.jsx';
 import styles from './Header.module.css';
 
 const Header = () => {
@@ -14,12 +14,14 @@ const Header = () => {
     const { addNotification } = useNotifications();
 
     const isActive = (path) => {
-        if (path === '/' && location.pathname === '/') return true;
-        if (path !== '/' && location.pathname.startsWith(path)) return true;
-        return false;
+        // Для главной страницы '/', проверяем точное совпадение
+        if (path === '/') {
+            return location.pathname === '/';
+        }
+        // Для остальных страниц проверяем, начинается ли путь с указанного
+        return location.pathname.startsWith(path);
     };
 
-    // Пример вызова уведомления (можно вызвать из любого компонента)
     const demoNotify = () => {
         addNotification({
             id: `notif-${Date.now()}`,
@@ -40,11 +42,21 @@ const Header = () => {
                         <span className={styles.logoText}>PowerLine Monitor</span>
                     </Link>
                 </div>
-                <nav className={`${styles.headerNav} ${isMobileMenuOpen ? styles.open : ''}`}>
-                    <Link to="/" className={`${styles.navLink} ${isActive('/') && location.pathname === '/' ? styles.active : ''}`}>Загрузка фото</Link>
-                    <Link to="/inspections" className={`${styles.navLink} ${isActive('/inspections') ? styles.active : ''}`}>История осмотров</Link>
 
+                <nav className={`${styles.headerNav} ${isMobileMenuOpen ? styles.open : ''}`}>
+                    {/* Новая ссылка на Дашборд (Аналитику) */}
+                    <Link to="/" className={`${styles.navLink} ${isActive('/') ? styles.active : ''}`}>
+                        Аналитика
+                    </Link>
+                    {/* Ссылка на загрузку теперь ведет на /upload */}
+                    <Link to="/upload" className={`${styles.navLink} ${isActive('/upload') ? styles.active : ''}`}>
+                        Загрузка фото
+                    </Link>
+                    <Link to="/inspections" className={`${styles.navLink} ${isActive('/inspections') ? styles.active : ''}`}>
+                        История осмотров
+                    </Link>
                 </nav>
+
                 <div className={styles.headerRight}>
                     <button className={styles.iconBtn} title="Уведомления" onClick={() => setShowNotificationsModal(true)}>
                         <Bell size={20} />
@@ -54,6 +66,7 @@ const Header = () => {
                     <div className={styles.userAvatar}><User size={20} /></div>
                 </div>
             </header>
+
             {showSettingsModal && (
                 <SettingsModal isOpen={showSettingsModal} onClose={() => setShowSettingsModal(false)} />
             )}

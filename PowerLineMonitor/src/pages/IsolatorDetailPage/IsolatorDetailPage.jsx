@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Download, Wrench, CheckCircle } from 'lucide-react'; // Добавил иконку CheckCircle
+import { Download, Wrench, CheckCircle } from 'lucide-react';
 import AnimatedProgressBar from '../../components/AnimatedProgressBar/AnimatedProgressBar.jsx';
 import ExportReportModal from '../../components/ExportReportModal/ExportReportModal.jsx';
 import Toast from '../../common/Toast';
@@ -44,12 +44,13 @@ const IsolatorDetailPage = () => {
                 setAnalysisResult(data);
 
                 const imgs = [];
-                const baseUrl = 'https://28c55251873d.ngrok-free.app/';
+                // Правильный способ для Vite!
+                const baseUrl = import.meta.env.VITE_API_URL;
 
                 if (data.file_path) {
                     const mainImage = data.file_path.startsWith('http')
                         ? data.file_path
-                        : baseUrl + data.file_path;
+                        : `${baseUrl}${data.file_path}`;
 
                     if (data.detections && data.detections.length > 0) {
                         imgs.push(mainImage);
@@ -58,7 +59,7 @@ const IsolatorDetailPage = () => {
                         if (firstDefectWithRoi) {
                             const roiImage = firstDefectWithRoi.roi_path.startsWith('http')
                                 ? firstDefectWithRoi.roi_path
-                                : baseUrl + firstDefectWithRoi.roi_path;
+                                : `${baseUrl}${firstDefectWithRoi.roi_path}`;
                             imgs.push(roiImage);
                         }
                     } else {
@@ -69,7 +70,8 @@ const IsolatorDetailPage = () => {
                 setImages(imgs);
                 setCurrentImageIndex(0);
             })
-            .catch(() => {
+            .catch((error) => {
+                console.error("Ошибка при загрузке данных:", error);
                 setToastMessage('Ошибка загрузки данных с сервера');
                 setToastType('error');
                 setToastVisible(true);
@@ -77,6 +79,7 @@ const IsolatorDetailPage = () => {
                 setImages([]);
             });
     }, [targetImageId]);
+
 
     const openExportModal = () => setExportModalOpen(true);
     const closeExportModal = () => setExportModalOpen(false);
@@ -200,7 +203,7 @@ const IsolatorDetailPage = () => {
                                 <table>
                                     <thead>
                                     <tr>
-                                        <th>ID ДЕФЕКТА</th>
+
                                         <th>ТИП ДЕФЕКТА</th>
                                         <th>YOLO</th>
                                         <th>КЛАССИФ</th>
@@ -210,7 +213,7 @@ const IsolatorDetailPage = () => {
                                     <tbody>
                                     {analysisResult.detections.map(defect => (
                                         <tr key={defect.id}>
-                                            <td>{defect.id}</td>
+
                                             <td>{defectTypeLabels[defect.defect_type] || defect.defect_type}</td>
                                             <td>{defect.yolo_confidence ? (defect.yolo_confidence * 100).toFixed(2) : '0.00'}%</td>
                                             <td>{formatClassifConfidence(defect.classif_confidence)}%</td>

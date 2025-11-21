@@ -338,10 +338,7 @@ const DashboardPage = () => {
                     )}
                 </div>
 
-                <div className={styles.chartCard} style={{ '--animation-order': 7 }}>
-                    <h3>Карта дефектов ({mapMarkers.length})</h3>
-                    <YandexMap markers={mapMarkers} onMarkerClick={handleMarkerClick} />
-                </div>
+
             </div>
 
             {selectedMarker && (

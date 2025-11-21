@@ -8,7 +8,7 @@ import styles from './DashboardPage.module.css';
 import { fetchGeneralStats, fetchDetectionsByDate } from '../../API/StatisticsAPI/StatisticsAPI';
 import { fetchDetectionsForMap } from '../../API/MapAPI/MapAPI';
 
-// Функция для получения локальной даты в формате YYYY-MM-DD
+// [translate: Функция для получения локальной даты в формате YYYY-MM-DD]
 const getLocalDate = (daysOffset = 0) => {
     const date = new Date();
     date.setDate(date.getDate() + daysOffset);
@@ -48,7 +48,10 @@ const LineChart = ({ data }) => {
 
     useEffect(() => {
         const path = svgRef.current;
-        if (path) setLineLength(path.getTotalLength());
+        if (path) {
+            const length = path.getTotalLength();
+            setLineLength(length);
+        }
     }, [points]);
 
     const formatDate = (dateStr) => {
@@ -160,6 +163,7 @@ const LineChart = ({ data }) => {
 const DashboardPage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const [chartLoading, setChartLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const [generalStats, setGeneralStats] = useState(null);
@@ -167,78 +171,75 @@ const DashboardPage = () => {
     const [mapMarkers, setMapMarkers] = useState([]);
     const [selectedMarker, setSelectedMarker] = useState(null);
 
-    // Используем локальную дату вместо UTC
     const [startDate, setStartDate] = useState(() => getLocalDate(-13));
     const [endDate, setEndDate] = useState(() => getLocalDate(0));
 
     useEffect(() => {
-        const loadDashboardData = async () => {
+        const loadGeneralData = async () => {
             setLoading(true);
             setError(null);
             try {
-                const [statsData, detectionsData, mapData] = await Promise.all([
+                const [statsData, mapData] = await Promise.all([
                     fetchGeneralStats(),
-                    fetchDetectionsByDate(startDate, endDate),
                     fetchDetectionsForMap()
                 ]);
-
-                console.log('Данные статистики:', statsData);
-                console.log('Данные детекций:', detectionsData);
-                console.log('Данные для карты:', mapData);
-
                 setGeneralStats(statsData);
-                setDailyDefects(detectionsData);
                 setMapMarkers(mapData);
             } catch (err) {
-                console.error('Ошибка загрузки данных дашборда:', err);
+                console.error('Ошибка загрузки общих данных:', err);
                 setError('Не удалось загрузить данные аналитики');
             } finally {
                 setLoading(false);
             }
         };
+        loadGeneralData();
+    }, []);
 
-        loadDashboardData();
-
-        // Автообновление данных каждые 30 секунд
-        const intervalId = setInterval(() => {
-            console.log('Автообновление данных дашборда...');
-            loadDashboardData();
-        }, 30000);
-
-        // Cleanup: очищаем интервал при размонтировании или изменении зависимостей
-        return () => {
-            console.log('Очистка интервала обновления');
-            clearInterval(intervalId);
-        };
-    }, [startDate, endDate]);
-
-    // Обновляем endDate при возврате фокуса на страницу
     useEffect(() => {
-        const handleFocus = () => {
-            const today = getLocalDate(0);
-            console.log('Фокус на странице, обновляем endDate до:', today);
-            setEndDate(today);
-        };
-
-        const handleVisibilityChange = () => {
-            if (!document.hidden) {
-                const today = getLocalDate(0);
-                console.log('Страница стала видимой, обновляем endDate до:', today);
-                setEndDate(today);
+        const loadChartData = async () => {
+            setChartLoading(true);
+            try {
+                const detectionsData = await fetchDetectionsByDate(startDate, endDate);
+                setDailyDefects(detectionsData);
+            } catch (err) {
+                console.error('Ошибка загрузки данных графика:', err);
+            } finally {
+                setChartLoading(false);
             }
         };
 
+        // Загрузка при монтировании и при изменении дат
+        loadChartData();
+
+        // Автообновление графика каждые 30 секунд
+        const intervalId = setInterval(() => {
+            loadChartData();
+        }, 30000);
+
+        return () => clearInterval(intervalId);
+    }, [startDate, endDate]);
+
+    // Обновление endDate при возврате фокуса
+    useEffect(() => {
+        const handleFocus = () => {
+            const today = getLocalDate(0);
+            if (today !== endDate) setEndDate(today);
+        };
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                const today = getLocalDate(0);
+                if (today !== endDate) setEndDate(today);
+            }
+        };
         window.addEventListener('focus', handleFocus);
         document.addEventListener('visibilitychange', handleVisibilityChange);
-
         return () => {
             window.removeEventListener('focus', handleFocus);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
         };
-    }, []);
+    }, [endDate]);
 
     const handleMarkerClick = (marker) => {
-        console.log('Клик по маркеру:', marker);
         setSelectedMarker(marker);
     };
 
@@ -316,11 +317,23 @@ const DashboardPage = () => {
                             />
                         </div>
                     </div>
-                    {dailyDefects.length > 0 ? (
-                        <LineChart data={dailyDefects} />
+                    {chartLoading ? (
+                        <div style={{
+                            textAlign: 'center',
+                            color: 'var(--text-secondary)',
+                            padding: '2rem',
+                            minHeight: '250px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            Обновление графика...
+                        </div>
+                    ) : dailyDefects.length > 0 ? (
+                        <LineChart key={`${startDate}-${endDate}-${dailyDefects.length}`} data={dailyDefects} />
                     ) : (
                         <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '2rem' }}>
-                            Нет данных за выбранный период
+                           Нет данных за выбранный период
                         </p>
                     )}
                 </div>

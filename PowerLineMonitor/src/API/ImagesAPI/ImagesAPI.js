@@ -51,9 +51,14 @@ export async function fetchImageCard(imageId) {
  * @param {File} image - Файл изображения
  * @returns {Promise<Object>} - Результат анализа
  */
-export async function uploadSingleImage(image) {
+export async function uploadSingleImage(image, routeId) {
     const formData = new FormData();
     formData.append('files', image);
+
+    // Добавляем route_id как отдельное поле в FormData
+    if (routeId) {
+        formData.append('route_id', routeId);
+    }
 
     const response = await fetch(`${BASE_URL}/predict/`, {
         method: 'POST',

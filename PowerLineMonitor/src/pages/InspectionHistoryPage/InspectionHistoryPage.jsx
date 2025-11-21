@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Download, Eye, Edit, Trash2, RefreshCw, AlertTriangle, AlertCircle, XCircle, CheckCircle, AlertOctagon } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Search, Filter, Download, Eye, Edit, RefreshCw, AlertTriangle, AlertCircle, XCircle, CheckCircle, AlertOctagon, ChevronDown, ChevronRight, Folder, FolderOpen, MapPin } from 'lucide-react';
 import AdvancedFiltersModal from '../../components/AdvancedFiltersModal/AdvancedFiltersModal';
 import NewInspectionModal from '../../components/NewInspectionModal/NewInspectionModal';
 import ExportReportModal from '../../components/ExportReportModal/ExportReportModal';
@@ -9,9 +9,12 @@ import DeleteConfirmModal from '../../components/DeleteConfirmModal/DeleteConfir
 import ConfirmChangesModal from '../../components/ConfirmChangesModal/ConfirmChangesModal';
 import Checkbox from '../../components/Checkbox/Checkbox';
 import Select from '../../components/Select/Select';
+import YandexMap from '../../components/YandexMap/YandexMapV2.jsx';
+import DefectSidebar from '../../components/DeffectSidebar/DeffectSidebar.jsx';
 import styles from './InspectionHistoryPage.module.css';
 import { fetchImagesList } from '../../API/ImagesAPI/ImagesAPI';
-
+import { fetchRoutesList } from '../../API/RoutesAPI/RoutesAPI';
+import { fetchDetectionsForRouteMap } from '../../API/MapAPI/MapAPI';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,20 +27,15 @@ const objectTypeLabels = {
     'polymer_insulators': 'Полимерный изолятор',
 };
 
-// ДОБАВЛЕНО: Функция для определения цвета критичности
 const getCriticalityConfig = (criticality) => {
-    if (criticality === null || criticality === undefined) {
-        return null;
-    }
-
+    if (criticality === null || criticality === undefined) return null;
     const configs = {
-        1: { label: 'Низкая', color: '#10b981', Icon: CheckCircle },        // Зеленая галочка
-        2: { label: 'Средняя', color: '#f59e0b', Icon: AlertCircle },       // Желтый круг
-        3: { label: 'Высокая', color: '#ef4444', Icon: AlertTriangle },     // Красный треугольник
-        4: { label: 'Критическая', color: '#dc2626', Icon: AlertOctagon },  // Красный восьмиугольник
-        5: { label: 'Экстренная', color: '#991b1b', Icon: XCircle }         // Темно-красный крест
+        1: { label: 'Низкая', color: '#10b981', Icon: CheckCircle },
+        2: { label: 'Средняя', color: '#f59e0b', Icon: AlertCircle },
+        3: { label: 'Высокая', color: '#ef4444', Icon: AlertTriangle },
+        4: { label: 'Критическая', color: '#dc2626', Icon: AlertOctagon },
+        5: { label: 'Экстренная', color: '#991b1b', Icon: XCircle }
     };
-
     return configs[criticality];
 };
 
@@ -58,7 +56,6 @@ const filterByDateRange = (dateStr, range) => {
     const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
 
     if (range === 'today') return date >= startOfToday && date < endOfToday;
-
     if (range === 'week') {
         const day = now.getDay();
         const diffToMonday = (day === 0 ? 6 : day - 1);
@@ -66,7 +63,6 @@ const filterByDateRange = (dateStr, range) => {
         const endOfWeek = new Date(startOfWeek.getFullYear(), startOfWeek.getMonth(), startOfWeek.getDate() + 7);
         return date >= startOfWeek && date < endOfWeek;
     }
-
     if (range === 'month') {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
@@ -77,12 +73,14 @@ const filterByDateRange = (dateStr, range) => {
 
 const InspectionHistoryPage = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [searchQuery, setSearchQuery] = useState('');
     const [dateRange, setDateRange] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedItems, setSelectedItems] = useState(new Set());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [expandedFolders, setExpandedFolders] = useState(new Set());
 
     const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
     const [showNewInspection, setShowNewInspection] = useState(false);
@@ -94,16 +92,25 @@ const InspectionHistoryPage = () => {
     const [selectedInspection, setSelectedInspection] = useState(null);
     const [editedData, setEditedData] = useState(null);
     const [inspections, setInspections] = useState([]);
+    const [routes, setRoutes] = useState([]);
 
-    const loadInspections = async () => {
+    // Состояния для карты
+    const [selectedRouteForMap, setSelectedRouteForMap] = useState(null);
+    const [mapMarkers, setMapMarkers] = useState([]);
+    const [loadingMap, setLoadingMap] = useState(false);
+    const [selectedMarker, setSelectedMarker] = useState(null);
+
+    const loadData = async () => {
         setLoading(true);
         setError(null);
         try {
-            const data = await fetchImagesList();
+            const [imagesData, routesData] = await Promise.all([
+                fetchImagesList(),
+                fetchRoutesList()
+            ]);
 
-            const mappedData = data.map(item => {
+            const mappedData = imagesData.map(item => {
                 const translatedType = objectTypeLabels[item.main_class] || item.main_class || 'Не определен';
-
                 return {
                     id: `#${item.image_id}`,
                     realId: item.image_id,
@@ -111,25 +118,51 @@ const InspectionHistoryPage = () => {
                     objectType: translatedType,
                     confidence: item.main_confidence,
                     imageUrl: item.file_path,
-                    criticality: item.criticality, // ДОБАВЛЕНО
-                    countDamage: item.count_damage || 0 // ДОБАВЛЕНО
+                    criticality: item.criticality,
+                    countDamage: item.count_damage || 0,
+                    routeId: item.route_id
                 };
             });
 
             mappedData.sort((a, b) => b.realId - a.realId);
             setInspections(mappedData);
-
+            setRoutes(routesData);
         } catch (err) {
-            console.error('Ошибка при загрузке списка:', err);
-            setError('Не удалось загрузить список осмотров. Проверьте соединение.');
+            console.error('Ошибка при загрузке данных:', err);
+            setError('Не удалось загрузить данные. Проверьте соединение.');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        loadInspections();
+        loadData();
     }, []);
+
+    // Автоматически раскрываем папку после загрузки фото
+    useEffect(() => {
+        if (location.state?.expandRouteId && routes.length > 0) {
+            setExpandedFolders(new Set([location.state.expandRouteId]));
+            loadMapForRoute(location.state.expandRouteId);
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state, routes]);
+
+    // Загрузка маркеров карты для выбранного route
+    const loadMapForRoute = async (routeId) => {
+        setLoadingMap(true);
+        try {
+            const markers = await fetchDetectionsForRouteMap(routeId);
+            console.log('Загружены маркеры для route', routeId, ':', markers);
+            setMapMarkers(markers);
+            setSelectedRouteForMap(routeId);
+        } catch (err) {
+            console.error('Ошибка загрузки карты:', err);
+            setMapMarkers([]);
+        } finally {
+            setLoadingMap(false);
+        }
+    };
 
     const filteredInspections = useMemo(() => inspections.filter(i =>
         (searchQuery === '' ||
@@ -138,16 +171,38 @@ const InspectionHistoryPage = () => {
         filterByDateRange(i.date, dateRange)
     ), [inspections, searchQuery, dateRange]);
 
-    const totalPages = Math.ceil(filteredInspections.length / ITEMS_PER_PAGE);
+    const inspectionsByRoute = useMemo(() => {
+        const grouped = {};
+        routes.forEach(route => {
+            grouped[route.id] = filteredInspections.filter(i => i.routeId === route.id);
+        });
+        return grouped;
+    }, [routes, filteredInspections]);
 
-    const paginatedInspections = useMemo(() => {
-        const start = (currentPage - 1) * ITEMS_PER_PAGE;
-        return filteredInspections.slice(start, start + ITEMS_PER_PAGE);
-    }, [filteredInspections, currentPage]);
+    const toggleFolder = (routeId) => {
+        const next = new Set(expandedFolders);
+        if (next.has(routeId)) {
+            next.delete(routeId);
+            if (selectedRouteForMap === routeId) {
+                setSelectedRouteForMap(null);
+                setMapMarkers([]);
+            }
+        } else {
+            next.add(routeId);
+            loadMapForRoute(routeId);
+        }
+        setExpandedFolders(next);
+    };
 
-    const handleSelectAll = e => {
-        if (e.target.checked) setSelectedItems(new Set(paginatedInspections.map(i => i.id)));
-        else setSelectedItems(new Set());
+    const handleSelectAll = (e, items) => {
+        e.stopPropagation();
+        const newSelected = new Set(selectedItems);
+        if (e.target.checked) {
+            items.forEach(i => newSelected.add(i.id));
+        } else {
+            items.forEach(i => newSelected.delete(i.id));
+        }
+        setSelectedItems(newSelected);
     };
 
     const handleSelectItem = id => {
@@ -168,33 +223,15 @@ const InspectionHistoryPage = () => {
     };
 
     const handleSaveEdit = (updatedData) => {
-        // Сохраняем данные для подтверждения
         setEditedData(updatedData);
-
-        // Сразу обновляем локальное состояние
         setInspections(prev => prev.map(i =>
             i.id === selectedInspection.id
                 ? { ...i, criticality: updatedData.criticality }
                 : i
         ));
-
         setShowEdit(false);
-        // Не показываем модалку подтверждения, просто закрываем
         setSelectedInspection(null);
         setEditedData(null);
-    };
-
-    const handleConfirmEdit = () => {
-        // Обновляем только конкретную запись с данными из editedData
-        setInspections(prev => prev.map(i =>
-            i.id === selectedInspection.id
-                ? { ...i, criticality: editedData.criticality }
-                : i
-        ));
-
-        setShowConfirmChanges(false);
-        setEditedData(null);
-        setSelectedInspection(null);
     };
 
     const handleDelete = (e, inspection) => {
@@ -212,8 +249,17 @@ const InspectionHistoryPage = () => {
         setInspections(prev => [newInspection, ...prev]);
     };
 
-    const handleApplyFilters = filters => {
-        setShowAdvancedFilters(false);
+    const handleMarkerClick = (marker) => {
+        setSelectedMarker(marker);
+    };
+
+    const handleCloseSidebar = () => {
+        setSelectedMarker(null);
+    };
+
+    const formatDate = (iso) => {
+        const d = new Date(iso);
+        return d.toLocaleDateString('ru-RU');
     };
 
     return (
@@ -224,11 +270,10 @@ const InspectionHistoryPage = () => {
                         <h1>История Осмотров</h1>
                         <p>Просмотр, фильтрация и экспорт всех прошлых осмотров линий электропередач.</p>
                     </div>
-
                     <div className={styles.headerActions}>
                         <button
                             className={`${styles.btnSecondary} ${styles.btnEqualSize}`}
-                            onClick={loadInspections}
+                            onClick={loadData}
                             title="Обновить список"
                         >
                             <RefreshCw size={18} className={loading ? styles.spin : ''} />
@@ -249,7 +294,6 @@ const InspectionHistoryPage = () => {
                             onChange={e => setSearchQuery(e.target.value)}
                         />
                     </div>
-
                     <div className={styles.filterGroup}>
                         <label>Дата:</label>
                         <Select
@@ -264,7 +308,6 @@ const InspectionHistoryPage = () => {
                             placeholder="Выберите диапазон"
                         />
                     </div>
-
                     <button className={styles.btnIcon} onClick={() => setShowAdvancedFilters(true)}>
                         <Filter size={20} /> Больше фильтров
                     </button>
@@ -272,127 +315,145 @@ const InspectionHistoryPage = () => {
 
                 {error && <div className={styles.errorBlock}>{error}</div>}
 
-                <div className={styles.tableContainer}>
-                    {loading ? (
-                        <div className={styles.loadingState}>Загрузка данных...</div>
-                    ) : (
-                        <table className={styles.dataTable}>
-                            <thead>
-                            <tr>
-                                <th>
-                                    <Checkbox
-                                        checked={paginatedInspections.length > 0 && selectedItems.size === paginatedInspections.length}
-                                        onChange={handleSelectAll}
-                                    />
-                                </th>
-                                <th>ID ОСМОТРА</th>
-                                <th>ДАТА</th>
-                                <th>ТИП ОБЪЕКТА</th>
-                                <th>УВЕРЕННОСТЬ</th>
-                                <th>ПОВРЕЖДЕНИЙ</th> {/* ДОБАВЛЕНО */}
-                                <th>КРИТИЧНОСТЬ</th> {/* ДОБАВЛЕНО */}
-                                <th>ДЕЙСТВИЯ</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {paginatedInspections.length > 0 ? (
-                                paginatedInspections.map(inspection => {
-                                    const criticalityConfig = getCriticalityConfig(inspection.criticality);
+                {loading ? (
+                    <div className={styles.loadingState}>Загрузка данных...</div>
+                ) : (
+                    <div className={styles.foldersContainer}>
+                        {routes.map((route, folderIndex) => {
+                            const isExpanded = expandedFolders.has(route.id);
+                            const FolderIcon = isExpanded ? FolderOpen : Folder;
+                            const ChevronIcon = isExpanded ? ChevronDown : ChevronRight;
+                            const items = inspectionsByRoute[route.id] || [];
+                            const showMap = selectedRouteForMap === route.id && isExpanded;
 
-                                    return (
-                                        <tr key={inspection.id} className={styles.rowWithBorder} onClick={() => handleRowClick(inspection)}>
-                                            <td onClick={e => e.stopPropagation()}>
-                                                <Checkbox checked={selectedItems.has(inspection.id)} onChange={() => handleSelectItem(inspection.id)} />
-                                            </td>
-                                            <td className={styles.idCell}>{inspection.id}</td>
-                                            <td>{inspection.date}</td>
-                                            <td>{inspection.objectType}</td>
-                                            <td>{(inspection.confidence * 100).toFixed(2)}%</td>
+                            return (
+                                <div key={route.id} className={styles.folderBlock} style={{'--folder-index': folderIndex}}>
+                                    <div className={styles.folderHeader} onClick={() => toggleFolder(route.id)}>
+                                        <ChevronIcon size={20} className={styles.folderChevron} />
+                                        <FolderIcon size={20} className={styles.folderIcon} />
+                                        <h3 className={styles.folderTitle}>
+                                            {route.name} — {formatDate(route.created_at)}
+                                        </h3>
+                                        <span className={styles.folderCount}>({items.length})</span>
+                                    </div>
 
-                                            {/* ДОБАВЛЕНО: Количество повреждений */}
-                                            <td>
-                                                <span className={styles.damageCount}>
-                                                    {inspection.countDamage > 0 && (
-                                                        <AlertTriangle size={14} style={{ color: '#ef4444', marginRight: '4px' }} />
-                                                    )}
-                                                    {inspection.countDamage}
-                                                </span>
-                                            </td>
-
-                                            {/* ДОБАВЛЕНО: Критичность с цветовой индикацией */}
-                                            <td>
-                                                {criticalityConfig ? (
-                                                    <div className={styles.criticalityIcon} title={criticalityConfig.label}>
-                                                        <criticalityConfig.Icon
-                                                            size={20}
-                                                            color={criticalityConfig.color}
-                                                            strokeWidth={2.5}
+                                    {isExpanded && (
+                                        <div className={styles.folderContent}>
+                                            {/* КАРТА - ВСЕГДА СВЕРХУ */}
+                                            <div className={styles.mapSection}>
+                                                <div className={styles.mapHeader}>
+                                                    <MapPin size={20} />
+                                                    <h4>Карта дефектов ({mapMarkers.length})</h4>
+                                                </div>
+                                                {loadingMap ? (
+                                                    <div className={styles.mapLoading}>Загрузка карты...</div>
+                                                ) : mapMarkers.length > 0 ? (
+                                                    <div className={styles.mapContainer}>
+                                                        <YandexMap
+                                                            markers={mapMarkers}
+                                                            onMarkerClick={handleMarkerClick}
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <span className={styles.noCriticality}>—</span>
+                                                    <div className={styles.noMapData}>
+                                                        Нет координат для отображения на карте
+                                                    </div>
                                                 )}
-                                            </td>
+                                            </div>
 
-                                            <td className={styles.actionsCell} onClick={e => e.stopPropagation()}>
-                                                <button className={styles.actionBtn} title="Просмотр" onClick={() => handleRowClick(inspection)}>
-                                                    <Eye size={16} />
-                                                </button>
-                                                <button className={styles.actionBtn} title="Редактировать" onClick={(e) => handleEdit(e, inspection)}>
-                                                    <Edit size={16} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            ) : (
-                                <tr>
-                                    <td colSpan="8" className={styles.emptyState}>Нет данных для отображения</td>
-                                </tr>
-                            )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-
-                <div className={styles.pagination}>
-                    <span>
-                        Показано {filteredInspections.length > 0 ? ((currentPage - 1) * ITEMS_PER_PAGE) + 1 : 0}-
-                        {Math.min(currentPage * ITEMS_PER_PAGE, filteredInspections.length)} из {filteredInspections.length}
-                    </span>
-                    <div className={styles.paginationControls}>
-                        <button
-                            className={styles.pageBtn}
-                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                            disabled={currentPage === 1}
-                        >
-                            Назад
-                        </button>
-                        {[...Array(totalPages)].map((_, i) => (
-                            <button
-                                key={i}
-                                className={`${styles.pageBtn} ${currentPage === i + 1 ? styles.active : ''}`}
-                                onClick={() => setCurrentPage(i + 1)}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
-                        <button
-                            className={styles.pageBtn}
-                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                            disabled={currentPage === totalPages || totalPages === 0}
-                        >
-                            Вперед
-                        </button>
+                                            {/* ТАБЛИЦА - ПОД КАРТОЙ */}
+                                            {items.length === 0 ? (
+                                                <div className={styles.noData}>Нет осмотров в этом вылете</div>
+                                            ) : (
+                                                <div className={styles.tableContainer}>
+                                                    <table className={styles.dataTable}>
+                                                        <thead>
+                                                        <tr>
+                                                            <th>
+                                                                <Checkbox
+                                                                    checked={items.length > 0 && items.every(i => selectedItems.has(i.id))}
+                                                                    onChange={(e) => handleSelectAll(e, items)}
+                                                                />
+                                                            </th>
+                                                            <th>ID ОСМОТРА</th>
+                                                            <th>ДАТА</th>
+                                                            <th>ТИП ОБЪЕКТА</th>
+                                                            <th>УВЕРЕННОСТЬ</th>
+                                                            <th>ПОВРЕЖДЕНИЙ</th>
+                                                            <th>КРИТИЧНОСТЬ</th>
+                                                            <th>ДЕЙСТВИЯ</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {items.map((inspection, index) => {
+                                                            const criticalityConfig = getCriticalityConfig(inspection.criticality);
+                                                            return (
+                                                                <tr key={inspection.id} className={styles.rowWithBorder} onClick={() => handleRowClick(inspection)} style={{'--row-index': index}}>
+                                                                    <td onClick={e => e.stopPropagation()}>
+                                                                        <Checkbox checked={selectedItems.has(inspection.id)} onChange={() => handleSelectItem(inspection.id)} />
+                                                                    </td>
+                                                                    <td className={styles.idCell}>{inspection.id}</td>
+                                                                    <td>{inspection.date}</td>
+                                                                    <td>{inspection.objectType}</td>
+                                                                    <td>{(inspection.confidence * 100).toFixed(2)}%</td>
+                                                                    <td>
+                                                                        <span className={styles.damageCount}>
+                                                                            {inspection.countDamage > 0 && (
+                                                                                <AlertTriangle size={14} style={{ color: '#ef4444', marginRight: '4px' }} />
+                                                                            )}
+                                                                            {inspection.countDamage}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td>
+                                                                        {criticalityConfig ? (
+                                                                            <div className={styles.criticalityIcon} title={criticalityConfig.label}>
+                                                                                <criticalityConfig.Icon
+                                                                                    size={20}
+                                                                                    color={criticalityConfig.color}
+                                                                                    strokeWidth={2.5}
+                                                                                />
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className={styles.noCriticality}>—</span>
+                                                                        )}
+                                                                    </td>
+                                                                    <td className={styles.actionsCell} onClick={e => e.stopPropagation()}>
+                                                                        <button className={styles.actionBtn} title="Просмотр" onClick={() => handleRowClick(inspection)}>
+                                                                            <Eye size={16} />
+                                                                        </button>
+                                                                        <button className={styles.actionBtn} title="Редактировать" onClick={(e) => handleEdit(e, inspection)}>
+                                                                            <Edit size={16} />
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
-                </div>
+                )}
 
-                <AdvancedFiltersModal isOpen={showAdvancedFilters} onClose={() => setShowAdvancedFilters(false)} onApply={handleApplyFilters} />
+                {/* Sidebar для маркера */}
+                {selectedMarker && (
+                    <DefectSidebar
+                        marker={selectedMarker}
+                        onClose={handleCloseSidebar}
+                    />
+                )}
+
+                <AdvancedFiltersModal isOpen={showAdvancedFilters} onClose={() => setShowAdvancedFilters(false)} onApply={() => setShowAdvancedFilters(false)} />
                 <NewInspectionModal isOpen={showNewInspection} onClose={() => setShowNewInspection(false)} onSubmit={handleNewInspection} />
                 <ExportReportModal isOpen={showExport} onClose={() => setShowExport(false)} inspections={filteredInspections} />
                 <EditInspectionModal isOpen={showEdit} onClose={() => setShowEdit(false)} inspection={selectedInspection} onSave={handleSaveEdit} />
                 <DeleteConfirmModal isOpen={showDelete} onClose={() => setShowDelete(false)} onConfirm={handleConfirmDelete} itemName={selectedInspection?.id} />
-                <ConfirmChangesModal isOpen={showConfirmChanges} onClose={() => setShowConfirmChanges(false)} onConfirm={handleConfirmEdit} original={selectedInspection} edited={editedData} />
+                <ConfirmChangesModal isOpen={showConfirmChanges} onClose={() => setShowConfirmChanges(false)} onConfirm={() => setShowConfirmChanges(false)} original={selectedInspection} edited={editedData} />
             </main>
         </div>
     );

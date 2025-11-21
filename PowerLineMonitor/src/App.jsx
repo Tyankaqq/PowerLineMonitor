@@ -19,10 +19,10 @@ function App() {
                     <Header />
                     <Routes>
                         {/* Дашборд теперь главная страница */}
-                        <Route path="/" element={<DashboardPage />} />
+                        <Route path="/dashboard" element={<DashboardPage />} />
 
                         {/* Старая главная страница теперь на /upload */}
-                        <Route path="/upload" element={<ImageUploadPage />} />
+                        <Route path="/" element={<ImageUploadPage />} />
 
                         {/* Остальные роуты без изменений */}
                         <Route path="/isolator/:id" element={<IsolatorDetailPage />} />

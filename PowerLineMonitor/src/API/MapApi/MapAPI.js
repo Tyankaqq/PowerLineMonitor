@@ -25,3 +25,31 @@ export async function fetchDetectionsForMap() {
 
     return response.json();
 }
+
+
+
+
+export async function fetchDetectionsForRouteMap(routeId) {
+    const response = await fetch(`${BASE_URL}routes/${routeId}/detections/map`);
+    if (!response.ok) throw new Error('Ошибка загрузки карты для маршрута');
+    return response.json();
+}
+
+export async function fetchImageLocation(imageId) {
+    const response = await fetch(`${BASE_URL}images/${imageId}`);
+    if (!response.ok) throw new Error('Ошибка загрузки координат изображения');
+    const data = await response.json();
+
+    // Преобразуем в формат маркера для карты
+    if (data.gps_latitude && data.gps_longitude) {
+        return [{
+            id: data.image_id,
+            latitude: data.gps_latitude,
+            longitude: data.gps_longitude,
+            defect_type: data.main_class,
+            confidence: data.main_confidence,
+            has_defects: data.detections && data.detections.length > 0
+        }];
+    }
+    return [];
+}

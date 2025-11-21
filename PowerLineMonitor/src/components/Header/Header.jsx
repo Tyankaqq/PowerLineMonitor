@@ -47,17 +47,19 @@ const Header = () => {
                 </div>
 
                 <nav className={`${styles.headerNav} ${isMobileMenuOpen ? styles.open : ''}`}>
-                    {/* Новая ссылка на Дашборд (Аналитику) */}
                     <Link to="/" className={`${styles.navLink} ${isActive('/') ? styles.active : ''}`}>
-                        Аналитика
-                    </Link>
-                    {/* Ссылка на загрузку теперь ведет на /upload */}
-                    <Link to="/upload" className={`${styles.navLink} ${isActive('/upload') ? styles.active : ''}`}>
                         Загрузка фото
                     </Link>
+                    {/* Новая ссылка на Дашборд (Аналитику) */}
+
                     <Link to="/inspections" className={`${styles.navLink} ${isActive('/inspections') ? styles.active : ''}`}>
                         История осмотров
                     </Link>
+
+                    <Link to="/dashboard" className={`${styles.navLink} ${isActive('/dashboard') ? styles.active : ''}`}>
+                        Аналитика
+                    </Link>
+
                 </nav>
 
                 <div className={styles.headerRight}>

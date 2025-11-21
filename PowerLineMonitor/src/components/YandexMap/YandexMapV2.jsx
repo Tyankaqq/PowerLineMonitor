@@ -19,6 +19,7 @@ const YandexMapV2 = ({ markers = [], onMarkerClick }) => {
 
     useEffect(() => {
         if (mapInstance.current && markers.length > 0 && !isLoading) {
+            mapInstance.current.geoObjects.removeAll();
             addMarkers();
         }
     }, [markers, isLoading]);
@@ -61,15 +62,23 @@ const YandexMapV2 = ({ markers = [], onMarkerClick }) => {
         window.ymaps.ready(() => {
             try {
                 let center = [55.755819, 37.617644];
+                let zoom = 10;
 
-                if (markers.length > 0 && markers[0].gps_latitude && markers[0].gps_longitude) {
-                    center = [markers[0].gps_latitude, markers[0].gps_longitude];
-                    console.log('📍 Центр карты:', center);
+                if (markers.length > 0) {
+                    // ИСПРАВЛЕНО: проверяем оба варианта названий полей
+                    const lat = markers[0].latitude || markers[0].gps_latitude;
+                    const lon = markers[0].longitude || markers[0].gps_longitude;
+
+                    if (lat && lon) {
+                        center = [lat, lon];
+                        zoom = markers.length === 1 ? 15 : 10; // Больший зум для одного маркера
+                        console.log('📍 Центр карты:', center, 'Zoom:', zoom);
+                    }
                 }
 
                 const map = new window.ymaps.Map(mapRef.current, {
                     center: center,
-                    zoom: 10,
+                    zoom: zoom,
                     controls: ['zoomControl', 'fullscreenControl', 'geolocationControl']
                 });
 
@@ -95,13 +104,19 @@ const YandexMapV2 = ({ markers = [], onMarkerClick }) => {
             return;
         }
 
-        console.log(`📌 Добавляем ${markers.length} маркеров`);
+        console.log(`📌 Добавляем ${markers.length} маркеров`, markers);
 
         markers.forEach((marker, index) => {
-            if (!marker.gps_latitude || !marker.gps_longitude) {
-                console.warn(`⚠️ Маркер ${index} без координат`);
+            // ИСПРАВЛЕНО: поддержка обоих вариантов названий полей
+            const lat = marker.latitude || marker.gps_latitude;
+            const lon = marker.longitude || marker.gps_longitude;
+
+            if (!lat || !lon) {
+                console.warn(`⚠️ Маркер ${index} без координат:`, marker);
                 return;
             }
+
+            console.log(`✅ Добавляем маркер ${index}:`, { lat, lon });
 
             const color = getMarkerColor(marker.defect_type);
             const defectTypeName = getDefectTypeName(marker.defect_type);
@@ -115,23 +130,26 @@ const YandexMapV2 = ({ markers = [], onMarkerClick }) => {
                 </div>`
             );
 
+            const detectionId = marker.detection_id || marker.id || 'N/A';
+            const imageId = marker.image_id || marker.id;
+
             const placemark = new window.ymaps.Placemark(
-                [marker.gps_latitude, marker.gps_longitude],
+                [lat, lon],
                 {
                     hintContent: `
                         <div style="padding: 8px; font-family: system-ui;">
-                            <strong style="font-size: 14px; color: ${color};">Дефект #${marker.detection_id}</strong><br/>
+                            <strong style="font-size: 14px; color: ${color};">Дефект #${detectionId}</strong><br/>
                             <span style="font-size: 12px; color: #666;">Тип: ${defectTypeName}</span><br/>
                             <span style="font-size: 11px; color: #999;">${formattedDate}</span>
                         </div>
                     `,
                     balloonContent: `
                         <div style="padding: 12px; font-family: system-ui;">
-                            <h3 style="margin: 0 0 8px 0; font-size: 16px; color: ${color};">Дефект #${marker.detection_id}</h3>
+                            <h3 style="margin: 0 0 8px 0; font-size: 16px; color: ${color};">Дефект #${detectionId}</h3>
                             <p style="margin: 4px 0;"><strong>Тип:</strong> ${defectTypeName}</p>
                             <p style="margin: 4px 0;"><strong>Дата создания:</strong> ${formattedDate}</p>
                             <button 
-                                onclick="window.location.href='/isolator/${marker.image_id}'" 
+                                onclick="window.location.href='/isolator/${imageId}'" 
                                 style="margin-top: 10px; padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;"
                             >
                                 Подробнее →
@@ -156,24 +174,29 @@ const YandexMapV2 = ({ markers = [], onMarkerClick }) => {
             });
 
             mapInstance.current.geoObjects.add(placemark);
-            console.log(`✅ Маркер ${index} добавлен`);
+            console.log(`✅ Маркер ${index} добавлен на карту`);
         });
 
+        // Автоматическое центрирование для нескольких маркеров
         if (markers.length > 1) {
-            mapInstance.current.setBounds(
-                mapInstance.current.geoObjects.getBounds(),
-                { checkZoomRange: true, zoomMargin: 50 }
-            );
+            try {
+                mapInstance.current.setBounds(
+                    mapInstance.current.geoObjects.getBounds(),
+                    { checkZoomRange: true, zoomMargin: 50 }
+                );
+            } catch (e) {
+                console.warn('Не удалось установить границы:', e);
+            }
         }
     };
 
     const getMarkerColor = (defectType) => {
         const colors = {
-            'crack': '#ef4444',       // Красный
-            'corrosion': '#f97316',   // Оранжевый
-            'chip': '#eab308',        // Желтый
-            'missing-element': '#8b5cf6', // Фиолетовый
-            'default': '#3b82f6'      // Синий
+            'crack': '#ef4444',
+            'corrosion': '#f97316',
+            'chip': '#eab308',
+            'missing-element': '#8b5cf6',
+            'default': '#3b82f6'
         };
         return colors[defectType] || colors['default'];
     };
@@ -202,7 +225,6 @@ const YandexMapV2 = ({ markers = [], onMarkerClick }) => {
         return `${day}.${month}.${year}, ${hours}:${minutes}`;
     };
 
-    // ДОБАВЛЕНО: Легенда
     const MapLegend = () => {
         const legendItems = [
             { type: 'crack', name: 'Трещина', color: '#ef4444' },

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Download, Wrench, CheckCircle } from 'lucide-react'; // Убрали X
+import { Download, Wrench, CheckCircle, MapPin } from 'lucide-react';
 import AnimatedProgressBar from '../../components/AnimatedProgressBar/AnimatedProgressBar.jsx';
 import ExportReportModal from '../../components/ExportReportModal/ExportReportModal.jsx';
-import ImageModal from '../../components/ImageModal/ImageModal.jsx'; // ДОБАВИЛИ
+import ImageModal from '../../components/ImageModal/ImageModal.jsx';
+import YandexMap from '../../components/YandexMap/YandexMapV2.jsx';
+import DefectSidebar from '../../components/DeffectSidebar/DeffectSidebar.jsx';
 import Toast from '../../common/Toast';
 import styles from './IsolatorDetailPage.module.css';
 import { fetchImageCard } from '../../API/ImagesAPI/ImagesAPI';
@@ -36,6 +38,10 @@ const IsolatorDetailPage = () => {
     const [analysisResult, setAnalysisResult] = useState(null);
     const [creatingRepair, setCreatingRepair] = useState(null);
 
+    // Состояния для карты
+    const [mapMarkers, setMapMarkers] = useState([]);
+    const [selectedMarker, setSelectedMarker] = useState(null);
+
     const formatClassifConfidence = (value) => {
         if (value === undefined || value === null) return '0.00';
         const percent = value * 100;
@@ -46,9 +52,11 @@ const IsolatorDetailPage = () => {
     useEffect(() => {
         setAnalysisResult(null);
         setImages([]);
+        setMapMarkers([]);
 
         fetchImageCard(targetImageId)
             .then(data => {
+                console.log('Полученные данные карточки:', data);
                 setAnalysisResult(data);
 
                 const imgs = [];
@@ -74,6 +82,27 @@ const IsolatorDetailPage = () => {
 
                     setImages(imgs);
                     setCurrentImageIndex(0);
+                }
+
+                // Формируем маркер для карты из данных image card
+                if (data.detections && data.detections.length > 0) {
+                    const firstDetection = data.detections[0];
+
+                    if (firstDetection.gps_latitude && firstDetection.gps_longitude) {
+                        const marker = {
+                            id: data.image_id,
+                            latitude: firstDetection.gps_latitude,
+                            longitude: firstDetection.gps_longitude,
+                            defect_type: firstDetection.defect_type,
+                            confidence: data.main_confidence,
+                            has_defects: true,
+                            image_path: data.file_path
+                        };
+                        console.log('Создан маркер:', marker);
+                        setMapMarkers([marker]);
+                    } else {
+                        console.log('GPS координаты отсутствуют в detection');
+                    }
                 }
             })
             .catch((error) => {
@@ -116,13 +145,19 @@ const IsolatorDetailPage = () => {
     };
 
     const openFullscreen = () => {
-        console.log('🖼️ Открытие модалки с URL:', images[currentImageIndex]);
         setFullscreenImage(images[currentImageIndex]);
     };
 
     const closeFullscreen = () => {
-        console.log('🚪 Закрытие модалки');
         setFullscreenImage(null);
+    };
+
+    const handleMarkerClick = (marker) => {
+        setSelectedMarker(marker);
+    };
+
+    const handleCloseSidebar = () => {
+        setSelectedMarker(null);
     };
 
     if (!analysisResult) {
@@ -137,7 +172,6 @@ const IsolatorDetailPage = () => {
                 <div className={styles.pageHeader}>
                     <div>
                         <h1>{analysisResult.isolatorName || 'Изолятор'}</h1>
-
                     </div>
                     <button className={styles.btnPrimary} onClick={openExportModal}>
                         <Download size={18} />
@@ -211,6 +245,26 @@ const IsolatorDetailPage = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* КАРТА ПОД ОЦЕНКОЙ СОСТОЯНИЯ */}
+                        <div className={styles.card} style={{ marginTop: 'var(--spacing-lg)' }}>
+                            <div className={styles.mapHeader}>
+                                <MapPin size={20} />
+                                <h3>Местоположение на карте</h3>
+                            </div>
+                            {mapMarkers.length > 0 ? (
+                                <div className={styles.mapContainer}>
+                                    <YandexMap
+                                        markers={mapMarkers}
+                                        onMarkerClick={handleMarkerClick}
+                                    />
+                                </div>
+                            ) : (
+                                <div className={styles.noMapData}>
+                                    Координаты отсутствуют
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -230,7 +284,6 @@ const IsolatorDetailPage = () => {
                                 <table>
                                     <thead>
                                     <tr>
-
                                         <th>ТИП ДЕФЕКТА</th>
                                         <th>YOLO</th>
                                         <th>КЛАССИФ</th>
@@ -240,7 +293,6 @@ const IsolatorDetailPage = () => {
                                     <tbody>
                                     {analysisResult.detections.map(defect => (
                                         <tr key={defect.id}>
-
                                             <td>{defectTypeLabels[defect.defect_type] || defect.defect_type}</td>
                                             <td>{defect.yolo_confidence ? (defect.yolo_confidence * 100).toFixed(2) : '0.00'}%</td>
                                             <td>{formatClassifConfidence(defect.classif_confidence)}%</td>
@@ -270,9 +322,15 @@ const IsolatorDetailPage = () => {
                 </div>
             </div>
 
-            {/* ИСПОЛЬЗУЕМ КОМПОНЕНТ ImageModal */}
             {fullscreenImage && (
                 <ImageModal imageUrl={fullscreenImage} onClose={closeFullscreen} />
+            )}
+
+            {selectedMarker && (
+                <DefectSidebar
+                    marker={selectedMarker}
+                    onClose={handleCloseSidebar}
+                />
             )}
 
             <ExportReportModal

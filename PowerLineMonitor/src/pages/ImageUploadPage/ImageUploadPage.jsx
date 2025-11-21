@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { Upload, X, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import UploadConfirmModal from '../../components/UploadConfirmModal/UploadConfirmModal';
 import UploadSuccessModal from '../../components/UploadSuccessModal/UploadSuccessModal';
 import { uploadSingleImage } from '../../API/ImagesAPI/ImagesAPI';
+import { fetchRoutesList, createRoute } from '../../API/RoutesAPI/RoutesAPI';
 import styles from './ImageUploadPage.module.css';
 
 const ImageUploadPage = () => {
@@ -15,11 +16,31 @@ const ImageUploadPage = () => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [uploadError, setUploadError] = useState(null);
+    const [routes, setRoutes] = useState([]);
+    const [selectedRouteId, setSelectedRouteId] = useState(null);
     const [analysisResults, setAnalysisResults] = useState({
         processedCount: 0,
         defectsFound: 0,
         results: []
     });
+
+    // Загрузка списка вылетов при монтировании
+    useEffect(() => {
+        loadRoutes();
+    }, []);
+
+    const loadRoutes = async () => {
+        try {
+            const data = await fetchRoutesList();
+            setRoutes(data);
+            // Автоматически выбираем первый маршрут
+            if (data.length > 0) {
+                setSelectedRouteId(data[0].id);
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки маршрутов:', error);
+        }
+    };
 
     const onDrop = useCallback((acceptedFiles, rejectedFiles) => {
         const newFiles = acceptedFiles.map(file => ({
@@ -30,13 +51,12 @@ const ImageUploadPage = () => {
             status: 'pending',
             preview: URL.createObjectURL(file),
             progress: 0,
-            stage: 'pending' // pending, uploading, analyzing, success, error
+            stage: 'pending'
         }));
 
         setSelectedFiles(prev => [...prev, ...newFiles]);
 
         if (rejectedFiles.length > 0) {
-            console.log('Отклоненные файлы:', rejectedFiles);
             setUploadError('Некоторые файлы не поддерживаются или превышают допустимый размер');
         }
     }, []);
@@ -63,40 +83,23 @@ const ImageUploadPage = () => {
         }
     };
 
-    const uploadFile = async (file) => {
+    const uploadFile = async (file, routeId) => {
         try {
-            // Этап 1: Загрузка файла (быстро)
             setUploadedFiles(prev => prev.map(f =>
-                f.id === file.id ? {
-                    ...f,
-                    progress: 20,
-                    status: 'uploading',
-                    stage: 'uploading'
-                } : f
+                f.id === file.id ? { ...f, progress: 20, status: 'uploading', stage: 'uploading' } : f
             ));
 
-            // Симуляция быстрой загрузки файла (для UX)
             await new Promise(resolve => setTimeout(resolve, 200));
 
-            // Этап 2: Анализ YOLO (медленно)
             setUploadedFiles(prev => prev.map(f =>
-                f.id === file.id ? {
-                    ...f,
-                    progress: 50,
-                    status: 'analyzing',
-                    stage: 'analyzing'
-                } : f
+                f.id === file.id ? { ...f, progress: 50, status: 'analyzing', stage: 'analyzing' } : f
             ));
 
-            // Загружаем через API.
-            // Сервер возвращает JSON с результатами анализа, включая ID созданной записи.
             const startTime = Date.now();
-            const result = await uploadSingleImage(file.file);
+            // Передаём route_id вместе с файлом
+            const result = await uploadSingleImage(file.file, routeId);
             const duration = ((Date.now() - startTime) / 1000).toFixed(1);
 
-            console.log(`Файл ${file.name} обработан за ${duration}с`, result);
-
-            // Этап 3: Успех
             setUploadedFiles(prev => prev.map(f =>
                 f.id === file.id ? {
                     ...f,
@@ -111,7 +114,6 @@ const ImageUploadPage = () => {
             return result;
         } catch (error) {
             console.error(`Ошибка загрузки ${file.name}:`, error);
-
             setUploadedFiles(prev => prev.map(f =>
                 f.id === file.id ? {
                     ...f,
@@ -121,18 +123,16 @@ const ImageUploadPage = () => {
                     error: error.message || 'Failed to fetch'
                 } : f
             ));
-
             throw error;
         }
     };
 
     const handleRetryFile = async (fileId) => {
         const fileToRetry = uploadedFiles.find(f => f.id === fileId);
-        if (!fileToRetry) return;
+        if (!fileToRetry || !selectedRouteId) return;
 
         try {
-            const result = await uploadFile(fileToRetry);
-
+            const result = await uploadFile(fileToRetry, selectedRouteId);
             const allSuccessfulFiles = uploadedFiles
                 .map(f => f.id === fileId ? { ...f, status: 'success', apiResult: result } : f)
                 .filter(f => f.status === 'success' && f.apiResult);
@@ -150,10 +150,11 @@ const ImageUploadPage = () => {
         }
     };
 
-    const handleConfirmUpload = async () => {
+    const handleConfirmUpload = async (routeId) => {
         setShowConfirmModal(false);
         setIsUploading(true);
         setUploadError(null);
+        setSelectedRouteId(routeId);
 
         setUploadedFiles(selectedFiles.map(f => ({
             ...f,
@@ -166,7 +167,7 @@ const ImageUploadPage = () => {
             const results = [];
             for (const file of selectedFiles) {
                 try {
-                    const result = await uploadFile(file);
+                    const result = await uploadFile(file, routeId);
                     results.push(result);
                 } catch (error) {
                     console.error(`Не удалось загрузить ${file.name}`);
@@ -174,7 +175,6 @@ const ImageUploadPage = () => {
             }
 
             const successfulUploads = results.length;
-            // Считаем, что дефект найден, если main_class не null (или другая логика вашего API)
             const defectsFound = results.filter(r => r.main_class).length;
 
             setAnalysisResults({
@@ -198,37 +198,15 @@ const ImageUploadPage = () => {
         }
     };
 
-    // Логика перехода на страницу результата
     const handleViewResults = () => {
         setShowSuccessModal(false);
 
-        // Сохраняем в localStorage, если нужно для истории
-        localStorage.setItem('lastAnalysisResults', JSON.stringify(analysisResults));
-
-        // 1. Если загружен РОВНО ОДИН файл - переходим на детальную страницу
-        if (analysisResults.results && analysisResults.results.length === 1) {
-            const singleResult = analysisResults.results[0];
-            // Проверяем оба варианта поля ID, которые могут прийти с бэкенда
-            const targetId = singleResult.image_id || singleResult.id;
-
-            if (targetId) {
-                console.log('Переход к изолятору:', targetId);
-                // Переходим на страницу /isolator/:id
-                navigate(`/isolator/${targetId}`, {
-                    state: {
-                        // Можно передать данные сразу, чтобы не ждать повторной загрузки (опционально)
-                        analysisResults: singleResult
-                    }
-                });
-            } else {
-                // Если ID почему-то нет, идем в общий список
-                console.warn('ID не найден в результате, переход в список');
-                navigate('/inspections');
+        // Переходим на страницу истории с автоматическим раскрытием папки
+        navigate('/inspections', {
+            state: {
+                expandRouteId: selectedRouteId // Передаём ID папки для раскрытия
             }
-        } else {
-            // 2. Если файлов МНОГО или 0 - переходим в общий список инспекций
-            navigate('/inspections');
-        }
+        });
     };
 
     const handleRetry = () => {
@@ -270,11 +248,7 @@ const ImageUploadPage = () => {
                     <Upload size={48} className={styles.uploadIcon} />
                     <p className={styles.dropzoneText}>Перетащите файлы сюда</p>
                     <p className={styles.dropzoneSubtext}>или</p>
-                    <button
-                        className={styles.btnPrimary}
-                        type="button"
-                        disabled={isUploading}
-                    >
+                    <button className={styles.btnPrimary} type="button" disabled={isUploading}>
                         Выберите файлы
                     </button>
                 </div>
@@ -300,10 +274,7 @@ const ImageUploadPage = () => {
                                                 {(file.size / (1024 * 1024)).toFixed(2)} МБ
                                             </span>
                                         </div>
-                                        <button
-                                            className={styles.removeBtn}
-                                            onClick={() => removeFile(file.id)}
-                                        >
+                                        <button className={styles.removeBtn} onClick={() => removeFile(file.id)}>
                                             <X size={20} />
                                         </button>
                                     </div>
@@ -311,10 +282,7 @@ const ImageUploadPage = () => {
                             </div>
                         </div>
 
-                        <button
-                            className={styles.btnUpload}
-                            onClick={handleUploadClick}
-                        >
+                        <button className={styles.btnUpload} onClick={handleUploadClick}>
                             <Upload size={20} />
                             Загрузить {selectedFiles.length} файл{selectedFiles.length > 1 ? 'а' : ''}
                         </button>
@@ -388,10 +356,7 @@ const ImageUploadPage = () => {
                         </div>
 
                         {uploadedFiles.some(f => f.status === 'error') && !isUploading && (
-                            <button
-                                className={styles.btnRetry}
-                                onClick={handleRetry}
-                            >
+                            <button className={styles.btnRetry} onClick={handleRetry}>
                                 Попробовать снова
                             </button>
                         )}
@@ -404,6 +369,8 @@ const ImageUploadPage = () => {
                 onClose={() => setShowConfirmModal(false)}
                 onConfirm={handleConfirmUpload}
                 filesCount={selectedFiles.length}
+                routes={routes}
+                onRoutesUpdate={loadRoutes}
             />
 
             <UploadSuccessModal

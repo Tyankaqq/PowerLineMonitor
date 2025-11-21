@@ -644,3 +644,767 @@
     background-size: 1000px 100%;
     animation: shimmer 2s infinite;
 }
+
+/* ============================================
+   АНИМАЦИИ ПОЯВЛЕНИЯ
+   ============================================ */
+
+/* Основные keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+
+.pageContainer {
+    display: flex;
+    height: calc(100vh - 64px);
+}
+
+.sidebar {
+    width: 250px;
+    background: var(--bg-darker);
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    animation: slideInRight 0.5s ease-out;
+}
+
+.userProfile {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    animation: fadeIn 0.6s ease-out;
+}
+
+.userAvatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-md);
+    font-size: 1.5rem;
+    animation: scaleIn 0.5s ease-out 0.2s backwards;
+}
+
+.userProfile h3 {
+    margin-bottom: 0.25rem;
+}
+
+.userProfile p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.sidebarNav {
+    flex: 1;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem var(--spacing-md);
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-sm);
+    transition: all var(--transition-base);
+    animation: slideInRight 0.4s ease-out backwards;
+    animation-delay: calc(0.1s * var(--nav-index, 0));
+}
+
+.navItem:hover {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+.navItem.active {
+    background: var(--accent-blue);
+    color: white;
+}
+
+.navIcon {
+    font-size: 1.25rem;
+}
+
+.btnPrimary {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: var(--spacing-xl);
+    padding: 0.75rem var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-base);
+    background: var(--accent-blue);
+    color: white;
+}
+
+.btnPrimary:hover {
+    background: var(--accent-blue-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btnSecondary {
+    width: 100%;
+    padding: 0.75rem var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: all var(--transition-base);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btnSecondary:hover {
+    background: var(--bg-darker);
+    transform: translateY(-2px);
+}
+
+.btnEqualSize {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem !important;
+    height: 40px;
+    font-size: 1rem;
+    line-height: 1;
+    gap: 8px;
+}
+
+.sidebarFooter {
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--spacing-md);
+    animation: fadeIn 0.6s ease-out 0.5s backwards;
+}
+
+.footerLink {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color var(--transition-base);
+}
+
+.footerLink:hover {
+    color: var(--text-primary);
+}
+
+.mainContent {
+    flex: 1;
+    padding: var(--spacing-xl);
+    overflow-y: auto;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-xl);
+    animation: slideDown 0.5s ease-out;
+}
+
+.pageHeader h1 {
+    margin-bottom: 0.5rem;
+}
+
+.pageHeader p {
+    color: var(--text-secondary);
+}
+
+.headerActions {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+/* ============================================
+   FILTERS
+   ============================================ */
+
+.filtersBar {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    flex-wrap: wrap;
+    animation: fadeInUp 0.5s ease-out 0.1s backwards;
+}
+
+.searchBox {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: var(--bg-card);
+    padding: 0.75rem var(--spacing-md);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-base);
+}
+
+.searchBox:focus-within {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.searchBox input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.filterGroup {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.filterGroup label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.filterGroup select,
+.select {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    outline: none;
+    font-size: 1rem;
+    min-width: 140px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filterGroup select:hover,
+.filterGroup select:focus,
+.select:hover,
+.select:focus {
+    border-color: var(--accent-blue);
+}
+
+.btnIcon {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 0.75rem var(--spacing-md);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btnIcon:hover {
+    background: var(--bg-darker);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   TABLE
+   ============================================ */
+
+.tableContainer {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 2px 8px rgba(30,41,59,0.05);
+    animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+.dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background: transparent;
+    table-layout: auto;
+}
+
+.dataTable thead th {
+    background: var(--bg-darker);
+    text-align: left;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dataTable tbody td {
+    padding: var(--spacing-md);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.dataTable tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    background: transparent;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.4s ease-out backwards;
+    animation-delay: calc(0.05s * var(--row-index, 0));
+}
+
+.dataTable tbody tr:hover {
+    background: var(--bg-darker);
+    transform: translateX(4px);
+}
+
+.dataTable tbody tr:last-child {
+    border-bottom: none;
+}
+
+.idCell {
+    font-weight: 600;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+
+.statusBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+    animation: scaleIn 0.3s ease-out backwards;
+    transition: transform 0.2s ease;
+}
+
+.statusBadge:hover {
+    transform: scale(1.05);
+}
+
+.status-new {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.status-in_work {
+    background: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+}
+
+.status-completed {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.severityBadge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+    animation: scaleIn 0.3s ease-out backwards;
+    transition: transform 0.2s ease;
+}
+
+.severityBadge:hover {
+    transform: scale(1.05);
+}
+
+.severity-critical {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.severity-warning {
+    background: rgba(250, 204, 21, 0.1);
+    color: #facc15;
+}
+
+.severity-normal {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.clickableRow {
+    cursor: pointer;
+}
+
+.actionsCell {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: 0;
+}
+
+.actionBtn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: all var(--transition-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actionBtn:hover {
+    background: var(--bg-darker);
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+/* ============================================
+   PAGINATION
+   ============================================ */
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    animation: fadeInUp 0.5s ease-out 0.3s backwards;
+}
+
+.paginationControls {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.pageBtn {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.pageBtn:hover {
+    background: var(--bg-darker);
+    transform: translateY(-2px);
+}
+
+.pageBtn.active {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+}
+
+/* ============================================
+   ADDITIONAL ELEMENTS
+   ============================================ */
+
+.damageCount {
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.criticalityBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    animation: scaleIn 0.4s ease-out backwards;
+}
+
+.criticalityBadge:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.criticalityIcon {
+    font-size: 1rem;
+}
+
+.noCriticality {
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+}
+.foldersContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.folderBlock {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease-out backwards;
+    animation-delay: calc(0.1s * var(--folder-index, 0));
+}
+
+.folderHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--bg-card);
+}
+
+.folderHeader:hover {
+    background: var(--bg-darker);
+}
+
+.folderChevron {
+    transition: transform 0.3s ease;
+}
+
+.folderIcon {
+    color: var(--accent-blue);
+}
+
+.folderTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+}
+
+.folderCount {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.folderContent {
+    border-top: 1px solid var(--border-color);
+    animation: slideDown 0.3s ease-out;
+    padding: var(--spacing-md);
+}
+
+.noData {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+/* === КАРТА В ПАПКЕ === */
+.mapSection {
+    margin-bottom: var(--spacing-xl);
+    background: var(--bg-darker);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    border: 1px solid var(--border-color);
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.mapHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    color: var(--accent-blue);
+}
+
+.mapHeader h4 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.mapContainer {
+    width: 100%;
+    height: 500px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--bg-card);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mapLoading,
+.noMapData {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+}
+
+@media (max-width: 768px) {
+    .mapContainer {
+        height: 350px;
+    }
+
+    .mapSection {
+        padding: var(--spacing-lg);
+    }
+}
+
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Pulse эффект для важных элементов */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .pageContainer {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        animation: slideDown 0.5s ease-out;
+    }
+
+    .tableContainer {
+        overflow-x: auto;
+    }
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+            90deg,
+            var(--bg-card) 0%,
+            var(--bg-darker) 50%,
+            var(--bg-card) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+

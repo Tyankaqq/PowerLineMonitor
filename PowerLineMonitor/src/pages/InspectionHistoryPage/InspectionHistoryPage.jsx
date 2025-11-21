@@ -324,7 +324,7 @@ const InspectionHistoryPage = () => {
                             const FolderIcon = isExpanded ? FolderOpen : Folder;
                             const ChevronIcon = isExpanded ? ChevronDown : ChevronRight;
                             const items = inspectionsByRoute[route.id] || [];
-                            const showMap = selectedRouteForMap === route.id && isExpanded;
+                            const showMap = selectedRouteForMap === route.id && isExpanded && !loadingMap && mapMarkers.length > 0;
 
                             return (
                                 <div key={route.id} className={styles.folderBlock} style={{'--folder-index': folderIndex}}>
@@ -339,29 +339,23 @@ const InspectionHistoryPage = () => {
 
                                     {isExpanded && (
                                         <div className={styles.folderContent}>
-                                            {/* КАРТА - ВСЕГДА СВЕРХУ */}
-                                            <div className={styles.mapSection}>
-                                                <div className={styles.mapHeader}>
-                                                    <MapPin size={20} />
-                                                    <h4>Карта дефектов ({mapMarkers.length})</h4>
-                                                </div>
-                                                {loadingMap ? (
-                                                    <div className={styles.mapLoading}>Загрузка карты...</div>
-                                                ) : mapMarkers.length > 0 ? (
+                                            {/* КАРТА - ТОЛЬКО ЕСЛИ ЕСТЬ КООРДИНАТЫ */}
+                                            {showMap && (
+                                                <div className={styles.mapSection}>
+                                                    <div className={styles.mapHeader}>
+                                                        <MapPin size={20} />
+                                                        <h4>Карта дефектов ({mapMarkers.length})</h4>
+                                                    </div>
                                                     <div className={styles.mapContainer}>
                                                         <YandexMap
                                                             markers={mapMarkers}
                                                             onMarkerClick={handleMarkerClick}
                                                         />
                                                     </div>
-                                                ) : (
-                                                    <div className={styles.noMapData}>
-                                                        Нет координат для отображения на карте
-                                                    </div>
-                                                )}
-                                            </div>
+                                                </div>
+                                            )}
 
-                                            {/* ТАБЛИЦА - ПОД КАРТОЙ */}
+                                            {/* ТАБЛИЦА */}
                                             {items.length === 0 ? (
                                                 <div className={styles.noData}>Нет осмотров в этом вылете</div>
                                             ) : (

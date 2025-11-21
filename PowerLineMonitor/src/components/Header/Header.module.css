@@ -31,8 +31,11 @@
 .logo:hover {
     color: var(--accent-blue);
 }
-
-.logoIcon {
+.logoIcon{
+    height: 50px;
+}
+.logoIcon img {
+    width: 50px;
     font-size: 1.5rem;
 }
 

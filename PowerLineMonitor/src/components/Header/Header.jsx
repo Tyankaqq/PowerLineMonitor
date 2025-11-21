@@ -5,6 +5,7 @@ import SettingsModal from '../SettingsModal/SettingsModal';
 import NotificationsModal from '../NotificationsModal/NotificationsModal';
 import { useNotifications } from '../../hooks/useNotifications.jsx';
 import styles from './Header.module.css';
+import LogoImage from '../../assets/Без заголовка.png'
 
 const Header = () => {
     const location = useLocation();
@@ -38,8 +39,10 @@ const Header = () => {
             <header className={styles.header}>
                 <div className={styles.headerLeft}>
                     <Link to="/" className={styles.logo} onClick={() => setIsMobileMenuOpen(false)}>
-                        <span className={styles.logoIcon}>⚡</span>
-                        <span className={styles.logoText}>PowerLine Monitor</span>
+                        <span className={styles.logoIcon}>
+                            <img src={LogoImage}/>
+                        </span>
+                        <span className={styles.logoText}>AeroInspect</span>
                     </Link>
                 </div>
 

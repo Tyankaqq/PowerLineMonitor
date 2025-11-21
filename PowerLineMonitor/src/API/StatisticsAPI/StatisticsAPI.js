@@ -1,6 +1,6 @@
 // src/API/StatisticsAPI/StatisticsAPI.js
 
-const BASE_URL = 'https://c063f61fbd75.ngrok-free.app';
+const BASE_URL = 'https://2b7f4284077b.ngrok-free.app';
 
 if (!BASE_URL) {
     throw new Error("VITE_API_URL не установлена. Проверьте ваш .env файл.");

@@ -1,6 +1,6 @@
 // src/API/MapAPI/MapAPI.js
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://c063f61fbd75.ngrok-free.app';
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://2b7f4284077b.ngrok-free.app';
 
 if (!import.meta.env.VITE_API_URL) {
     console.warn('⚠️ VITE_API_URL не установлена в .env файле. Используется дефолтный URL.');

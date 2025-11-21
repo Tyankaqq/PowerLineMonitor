@@ -1,6 +1,6 @@
 // src/API/RepairRequestsAPI/RepairRequestsAPI.js
 
-const BASE_URL = 'https://c063f61fbd75.ngrok-free.app';
+const BASE_URL = 'https://2b7f4284077b.ngrok-free.app';
 
 /**
  * Создание заявки на ремонт для дефекта

@@ -24,7 +24,6 @@ const ImageUploadPage = () => {
         results: []
     });
 
-    // Загрузка списка вылетов при монтировании
     useEffect(() => {
         loadRoutes();
     }, []);
@@ -33,7 +32,6 @@ const ImageUploadPage = () => {
         try {
             const data = await fetchRoutesList();
             setRoutes(data);
-            // Автоматически выбираем первый маршрут
             if (data.length > 0) {
                 setSelectedRouteId(data[0].id);
             }
@@ -53,9 +51,7 @@ const ImageUploadPage = () => {
             progress: 0,
             stage: 'pending'
         }));
-
         setSelectedFiles(prev => [...prev, ...newFiles]);
-
         if (rejectedFiles.length > 0) {
             setUploadError('Некоторые файлы не поддерживаются или превышают допустимый размер');
         }
@@ -96,7 +92,6 @@ const ImageUploadPage = () => {
             ));
 
             const startTime = Date.now();
-            // Передаём route_id вместе с файлом
             const result = await uploadSingleImage(file.file, routeId);
             const duration = ((Date.now() - startTime) / 1000).toFixed(1);
 
@@ -130,7 +125,6 @@ const ImageUploadPage = () => {
     const handleRetryFile = async (fileId) => {
         const fileToRetry = uploadedFiles.find(f => f.id === fileId);
         if (!fileToRetry || !selectedRouteId) return;
-
         try {
             const result = await uploadFile(fileToRetry, selectedRouteId);
             const allSuccessfulFiles = uploadedFiles
@@ -156,12 +150,15 @@ const ImageUploadPage = () => {
         setUploadError(null);
         setSelectedRouteId(routeId);
 
-        setUploadedFiles(selectedFiles.map(f => ({
-            ...f,
-            status: 'pending',
-            stage: 'pending',
-            progress: 0
-        })));
+        setUploadedFiles(files => [
+            ...files.filter(f => f.status === 'success' || f.status === 'error'),
+            ...selectedFiles.map(f => ({
+                ...f,
+                status: 'pending',
+                stage: 'pending',
+                progress: 0
+            }))
+        ]);
 
         try {
             const results = [];
@@ -198,14 +195,25 @@ const ImageUploadPage = () => {
         }
     };
 
+    // "Посмотреть результат" — навигация на историю
     const handleViewResults = () => {
         setShowSuccessModal(false);
-
-        // Переходим на страницу истории с автоматическим раскрытием папки
         navigate('/inspections', {
             state: {
-                expandRouteId: selectedRouteId // Передаём ID папки для раскрытия
+                expandRouteId: selectedRouteId
             }
+        });
+    };
+
+    // Просто закрыть: сбросить все состояния (сделать готовым к новой загрузке)
+    const handleSuccessModalClose = () => {
+        setShowSuccessModal(false);
+        setSelectedFiles([]);
+        setUploadedFiles([]);
+        setAnalysisResults({
+            processedCount: 0,
+            defectsFound: 0,
+            results: []
         });
     };
 
@@ -341,7 +349,6 @@ const ImageUploadPage = () => {
                                             </span>
                                         )}
                                     </div>
-
                                     {file.status === 'error' && (
                                         <button
                                             className={styles.retryFileBtn}
@@ -354,7 +361,6 @@ const ImageUploadPage = () => {
                                 </div>
                             ))}
                         </div>
-
                         {uploadedFiles.some(f => f.status === 'error') && !isUploading && (
                             <button className={styles.btnRetry} onClick={handleRetry}>
                                 Попробовать снова
@@ -375,7 +381,7 @@ const ImageUploadPage = () => {
 
             <UploadSuccessModal
                 isOpen={showSuccessModal}
-                onClose={() => setShowSuccessModal(false)}
+                onClose={handleSuccessModalClose}
                 onViewResults={handleViewResults}
                 processedCount={analysisResults.processedCount}
                 defectsFound={analysisResults.defectsFound}
